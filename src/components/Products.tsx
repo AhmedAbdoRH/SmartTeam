@@ -210,7 +210,7 @@ export default function Services() {
                 onClick={handleShowMore}
                 className="px-8 py-3 rounded-lg bg-[var(--color-secondary,#FFD700)] text-black font-bold text-lg shadow hover:bg-yellow-400 transition-colors duration-200"
               >
-                إظهار المزيد
+                Show More
               </button>
             </div>
           )}

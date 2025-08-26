@@ -204,7 +204,7 @@ export default function Testimonials() {
             <button
               onClick={nextTestimonial}
               className="bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all duration-300 transform hover:scale-110 focus:outline-none disabled:opacity-50"
-              aria-label="التعليق التالي"
+              aria-label="Next Testimonial"
               disabled={isAnimating}
             >
               <ChevronLeft className="w-6 h-6 md:w-8 md:h-8" />

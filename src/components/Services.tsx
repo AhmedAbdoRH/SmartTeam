@@ -255,7 +255,7 @@ export default function Services() {
                 className="col-span-full text-center text-white text-xl"
                  transition={{ duration: 0.5 }}
               >
-                لا توجد منتجات في هذه الفئة.
+                No products in this category.
               </motion.div>
             )}
           </AnimatePresence>

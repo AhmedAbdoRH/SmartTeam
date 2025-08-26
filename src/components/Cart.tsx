@@ -205,18 +205,18 @@ const Cart: React.FC = () => {
             {cartItems.length > 0 && (
               <div className="border-t p-4">
                 <div className="flex justify-between text-lg font-medium mb-4">
-                  <span>المجموع</span>
-                  <span>{cartTotal} ر.س</span>
+                  <span>Total</span>
+                  <span>{cartTotal} SAR</span>
                 </div>
                 <button
                   onClick={() => {
                     // Handle checkout
                     const message = cartItems
-                      .map(item => `${item.title} - ${item.quantity} × ${item.price} ر.س`)
+                      .map(item => `${item.title} - ${item.quantity} × ${item.price} SAR`)
                       .join('\n');
                     window.open(
                       `https://wa.me/201027381559?text=${encodeURIComponent(
-                        `الطلبية:\n${message}\n\nالمجموع: ${calculateTotal()} ر.س`
+                        `Order:\n${message}\n\nTotal: ${calculateTotal()} SAR`
                       )}`,
                       '_blank'
                     );
@@ -225,7 +225,7 @@ const Cart: React.FC = () => {
                   }}
                   className="w-full bg-green-600 text-white py-3 rounded-md hover:bg-green-700 transition-colors"
                 >
-                  إتمام الطلب
+                  Complete Order
                 </button>
               </div>
             )}
