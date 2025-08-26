@@ -172,7 +172,7 @@ export default function Header({ storeSettings }: HeaderProps) {
         
         // Close mobile search when clicking outside
         if (isMobileSearchOpen && !target.closest('.mobile-search-container')) {
-          const isSearchIcon = target.closest('button[aria-label="بحث"]');
+          const isSearchIcon = target.closest('button[aria-label="Search"]');
           const isSearchInput = target.closest('input[type="text"]');
           
           if (!isSearchIcon && !isSearchInput) {
@@ -222,7 +222,7 @@ export default function Header({ storeSettings }: HeaderProps) {
             <button 
               className="md:hidden text-white p-2 -ml-2 mobile-menu-button"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              aria-label="القائمة"
+              aria-label="Menu"
             >
               {isMenuOpen ? <Close className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
@@ -230,7 +230,7 @@ export default function Header({ storeSettings }: HeaderProps) {
             <Link to="/" className="flex-shrink-0">
               <img 
                 src={storeSettings?.logo_url || '/logo.png'}
-                alt={storeSettings?.store_name || 'الشعار'} 
+                alt={storeSettings?.store_name || 'Logo'} 
                 className="h-16 md:h-20 w-auto"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
@@ -257,7 +257,7 @@ export default function Header({ storeSettings }: HeaderProps) {
                   }
                 }}
                 onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
-                placeholder="ابحث عن منتج..."
+                placeholder="Search for a product..."
                 className="w-full bg-white/10 text-white placeholder-white/50 rounded-full py-2 pr-10 pl-4 focus:outline-none focus:ring-2 focus:ring-[#FFD700] transition-all duration-300"
               />
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/50" />
@@ -307,7 +307,7 @@ export default function Header({ storeSettings }: HeaderProps) {
                 
                 {searchResults.length === 0 && searchQuery.length >= 2 && (
                   <div className="p-4 text-center text-white/70">
-                    لا توجد نتائج لـ "{searchQuery}"
+                    No results for "{searchQuery}"
                   </div>
                 )}
               </div>
@@ -331,7 +331,7 @@ export default function Header({ storeSettings }: HeaderProps) {
                 }
               }}
               className="md:hidden p-2 text-white hover:text-[#FFD700] transition-colors"
-              aria-label="بحث"
+              aria-label="Search"
             >
               <Search className="h-6 w-6" />
             </button>
@@ -356,7 +356,7 @@ export default function Header({ storeSettings }: HeaderProps) {
                         toggleCart(!isCartOpen);
                       }}
                       className="relative p-2 text-white hover:text-[#FFD700] transition-colors"
-                      aria-label="عرض السلة"
+                      aria-label="View Cart"
                       aria-expanded={isCartOpen}
                     >
                       <div className="relative">
@@ -435,7 +435,7 @@ export default function Header({ storeSettings }: HeaderProps) {
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   removeFromCart(item.id);
-                                  toast.success('تمت إزالة المنتج من السلة');
+                                  toast.success('Product removed from cart');
                                 }}
                                 className="text-white/50 hover:text-red-500 transition-colors p-1"
                                 aria-label="Remove from cart"
@@ -464,7 +464,7 @@ export default function Header({ storeSettings }: HeaderProps) {
                                     }).format(numericValue) + ' EGP';
                                   } catch (error) {
                                     console.error('Error formatting cart total:', error);
-                                    return '٠٫٠٠ ج.م';
+                                    return '0.00 EGP';
                                   }
                                 })()}
                               </div>
@@ -499,7 +499,7 @@ export default function Header({ storeSettings }: HeaderProps) {
                     type="text"
                     value={searchQuery}
                     onChange={(e) => handleSearch(e.target.value)}
-                    placeholder="ابحث عن منتج..."
+                    placeholder="Search for a product..."
                     className="w-full bg-white/10 text-white placeholder-white/50 rounded-full py-3 px-5 pr-12 focus:outline-none focus:ring-2 focus:ring-[#FFD700]"
                   />
                   <button
@@ -571,16 +571,16 @@ export default function Header({ storeSettings }: HeaderProps) {
                       className="block px-5 py-4 text-lg text-white hover:bg-white/10 rounded-lg transition-colors font-medium"
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      الصفحة الرئيسية
+                      Home Page
                     </Link>
                   </li>
                   
                   <li className="mt-6 bg-white/5 rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.1)]">
                     <div className="px-5 py-1.5 text-white/60 text-sm font-normal border-b border-white/10">
-                      الأقسام
+                      Categories
                     </div>
                     {loadingCategories ? (
-                      <div className="px-5 py-4 text-white/50 text-base text-center">جاري التحميل...</div>
+                      <div className="px-5 py-4 text-white/50 text-base text-center">Loading...</div>
                     ) : categories.length > 0 ? (
                       <ul className="mt-1">
                         {categories.map((category) => (
@@ -596,7 +596,7 @@ export default function Header({ storeSettings }: HeaderProps) {
                         ))}
                       </ul>
                     ) : (
-                      <div className="px-5 py-4 text-white/50 text-base text-center">لا توجد أقسام متاحة</div>
+                      <div className="px-5 py-4 text-white/50 text-base text-center">No categories available</div>
                     )}
                   </li>
                 </ul>
@@ -609,7 +609,7 @@ export default function Header({ storeSettings }: HeaderProps) {
                   className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
                 >
                   <X className="h-5 w-5" />
-                  <span>إغلاق القائمة</span>
+                  <span>Close Menu</span>
                 </button>
               </div>
             </motion.div>
