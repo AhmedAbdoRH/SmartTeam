@@ -114,11 +114,11 @@ const Cart: React.FC = () => {
           >
             {/* Header */}
             <div className="p-4 border-b flex justify-between items-center">
-              <h2 className="text-xl font-bold">سلة التسوق</h2>
+              <h2 className="text-xl font-bold">Shopping Cart</h2>
               <button
                 onClick={() => toggleCart(false)}
                 className="text-gray-500 hover:text-gray-700"
-                aria-label="إغلاق السلة"
+                aria-label="Close Cart"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -129,8 +129,8 @@ const Cart: React.FC = () => {
               {cartItems.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-center p-8">
                   <ShoppingCart className="w-16 h-16 text-gray-300 mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900">سلة التسوق فارغة</h3>
-                  <p className="mt-1 text-gray-500">ابدأ بإضافة بعض المنتجات</p>
+                  <h3 className="text-lg font-medium text-gray-900">Your cart is empty</h3>
+                  <p className="mt-1 text-gray-500">Start by adding some products</p>
                 </div>
               ) : (
                 <motion.ul className="space-y-4">
@@ -156,7 +156,7 @@ const Cart: React.FC = () => {
                       )}
                       <div className="mr-3 flex-1">
                         <h3 className="font-medium">{item.title}</h3>
-                        <p className="text-gray-600">{item.price} ر.س</p>
+                        <p className="text-gray-600">{item.price} SAR</p>
                         <div className="flex items-center mt-2">
                           <button
                             onClick={(e) => {
@@ -168,7 +168,7 @@ const Cart: React.FC = () => {
                               }
                             }}
                             className="p-1 text-gray-500 hover:bg-gray-100 rounded"
-                            aria-label="تقليل الكمية"
+                            aria-label="Decrease quantity"
                           >
                             <Minus className="w-4 h-4" />
                           </button>
@@ -179,7 +179,7 @@ const Cart: React.FC = () => {
                               updateQuantity(item.id, item.quantity + 1);
                             }}
                             className="p-1 text-gray-500 hover:bg-gray-100 rounded"
-                            aria-label="زيادة الكمية"
+                            aria-label="Increase quantity"
                           >
                             <Plus className="w-4 h-4" />
                           </button>
@@ -191,7 +191,7 @@ const Cart: React.FC = () => {
                           removeFromCart(item.id);
                         }}
                         className="text-red-500 hover:text-red-700 p-2"
-                        aria-label="إزالة المنتج"
+                        aria-label="Remove product"
                       >
                         <Trash2 className="w-5 h-5" />
                       </button>

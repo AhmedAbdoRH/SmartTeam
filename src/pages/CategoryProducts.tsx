@@ -58,7 +58,7 @@ export default function CategoryProducts() {
           backgroundAttachment: 'fixed',
         }}
       >
-        <div className="text-xl text-secondary">جاري التحميل...</div>
+        <div className="text-xl text-secondary">Loading...</div>
       </div>
     );
   }
@@ -74,12 +74,12 @@ export default function CategoryProducts() {
           backgroundAttachment: 'fixed',
         }}
       >
-        <div className="text-xl text-secondary">{error || 'القسم غير موجود'}</div>
+        <div className="text-xl text-secondary">{error || 'Category not found'}</div>
         <Link
           to="/"
           className="bg-accent text-white px-6 py-2 rounded-lg hover:bg-accent-light transition-colors"
         >
-          العودة للرئيسية
+          Back to Home
         </Link>
       </div>
     );
@@ -98,7 +98,7 @@ export default function CategoryProducts() {
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <Link to="/" className="text-secondary hover:text-accent transition-colors">
-            ← العودة للرئيسية
+            ← Back to Home
           </Link>
         </div>
 
@@ -110,7 +110,7 @@ export default function CategoryProducts() {
 
           {services.length === 0 ? (
             <p className="text-center text-secondary/70 py-8">
-              لا توجد منتجات في هذا القسم حالياً
+              No products in this category currently
             </p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

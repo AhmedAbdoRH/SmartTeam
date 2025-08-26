@@ -24,13 +24,13 @@ export default function ProductDetails() {
   // New state to control fade-out of previous image
   const [prevOpacity, setPrevOpacity] = useState(1);
 
-  // إضافة حالتين للتحكم في انتقال الصور
+  // Add two states to control image transitions
   const [currentTransform, setCurrentTransform] = useState('translateX(0)');
   const [prevTransform, setPrevTransform] = useState('translateX(0)');
 
-  // استخدم مؤشر منفصل للصورة السابقة
+  // Use a separate index for the previous image
   const [prevImageIndexState, setPrevImageIndexState] = useState<number | null>(null);
-  // تحكم في حالة الانتقال (لضمان عدم تكرار الترانزيشن أو تعارضها)
+  // Control the transition state (to ensure no repetition or conflict of transitions)
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
@@ -52,7 +52,7 @@ export default function ProductDetails() {
         .single();
 
       if (fetchError) throw fetchError;
-      if (!data) throw new Error('المنتج غير موجود');
+      if (!data) throw new Error('Product not found');
 
       setService(data);
     } catch (err: any) {
@@ -62,7 +62,7 @@ export default function ProductDetails() {
     }
   };
 
-  // جلب منتجات أخرى (بدون شرط القسم)
+  // Fetch other products (without category condition)
   const fetchSuggested = async () => {
     const { data } = await supabase
       .from('services')
@@ -75,12 +75,11 @@ export default function ProductDetails() {
   const handleContact = () => {
     if (!service) return;
     const productUrl = window.location.href;
-    const message = `استفسار عن المنتج: ${service.title}
-رابط المنتج: ${productUrl}`;
+    const message = `Inquiry about product: ${service.title}\nProduct link: ${productUrl}`;
     window.open(`https://wa.me/201027381559?text=${encodeURIComponent(message)}`, '_blank');
   };
 
-  // التقليب التلقائي للصور في المنتج الرئيسي فقط
+  // Automatic image cycling for the main product only
   const images: string[] = [
     service?.image_url || '',
     ...(Array.isArray(service?.gallery) ? service.gallery : [])
@@ -92,7 +91,7 @@ export default function ProductDetails() {
     if (images.length <= 1) return;
     const interval = setInterval(() => {
       setCurrentImage((prev) => (prev + 1) % images.length);
-    }, 4500); // فترة 5000 ملي ثانية (5 ثوانٍ)
+    }, 4500); // 4500 milliseconds (4.5 seconds) period
     return () => clearInterval(interval);
   }, [images.length]);
 
@@ -100,7 +99,7 @@ export default function ProductDetails() {
     setCurrentImage(0);
   }, [service?.id]);
 
-  // استخدام usePrevious لحفظ مؤشر الصورة السابقة
+  // Use usePrevious to save the previous image index
   const previousImageIndex = usePrevious(currentImage);
 
   // Extracted background styles for reuse
@@ -111,44 +110,44 @@ export default function ProductDetails() {
     backgroundAttachment: 'fixed',
   };
 
-  // تعديل تأثير الانتقال ليكون أبطأ: زيادة مدة الانتقال إلى 3500ms، مع تأخير 1000ms عند بدء التحريك
+  // Modify the transition effect to be slower: increase transition duration to 3500ms, with a 1000ms delay at the start of movement
   useEffect(() => {
-    // ابدأ بتحريك الصورة الجديدة من اليسار
+    // Start moving the new image from the left
     setCurrentTransform('translateX(-100%)');
-    // الصورة السابقة تبدأ من موقعها الحالي
+    // The previous image starts from its current position
     setPrevTransform('translateX(0)');
     const timer = setTimeout(() => {
-      // تحول الصورة الجديدة إلى موقعها النهائي
+      // The new image moves to its final position
       setCurrentTransform('translateX(0)');
-      // تنزلق الصورة السابقة للخارج إلى اليمين
+      // The previous image slides out to the right
       setPrevTransform('translateX(100%)');
-    }, 1000); // تأخير 1000ms
+    }, 1000); // 1000ms delay
     return () => clearTimeout(timer);
   }, [currentImage]);
 
-  // عند تغيير الصورة، احفظ المؤشر السابق قبل التغيير
+  // When the image changes, save the previous index before the change
   useEffect(() => {
     setPrevImageIndexState(currentImage);
   }, [currentImage]);
 
-  // انتقال الصور: الصورة الجديدة تبدأ من اليمين وتدخل، والصورة السابقة تخرج لليسار
+  // Image transition: The new image starts from the right and enters, and the previous image exits to the left
   useEffect(() => {
-    // إعدادات الانتقال
-    const DURATION = 1800; // مدة الانتقال الفعلي (ms)
-    const DELAY = 0; // لا حاجة لتأخير إضافي
+    // Transition settings
+    const DURATION = 1800; // Actual transition duration (ms)
+    const DELAY = 0; // No need for additional delay
 
-    // ابدأ الانتقال فقط إذا لم يكن هناك انتقال جارٍ
+    // Start transition only if there is no ongoing transition
     setIsTransitioning(true);
-    setCurrentTransform('translateX(100%)'); // الصورة الجديدة تبدأ خارج الشاشة يميناً
-    setPrevTransform('translateX(0)');      // الصورة السابقة في مكانها
+    setCurrentTransform('translateX(100%)'); // The new image starts off-screen to the right
+    setPrevTransform('translateX(0)');      // The previous image in its place
 
-    // استخدم requestAnimationFrame لضمان تطبيق الترانزيشن بعد إعادة الرسم
+    // Use requestAnimationFrame to ensure the transition is applied after redraw
     let raf = requestAnimationFrame(() => {
-      setCurrentTransform('translateX(0)');     // الصورة الجديدة تدخل مكانها
-      setPrevTransform('translateX(-100%)');    // الصورة السابقة تخرج يساراً
+      setCurrentTransform('translateX(0)');     // The new image enters its place
+      setPrevTransform('translateX(-100%)');    // The previous image exits to the left
     });
 
-    // بعد انتهاء الانتقال، احذف الصورة السابقة من العرض
+    // After the transition ends, remove the previous image from display
     const cleanup = setTimeout(() => {
       setPrevImageIndexState(null);
       setIsTransitioning(false);
@@ -160,8 +159,8 @@ export default function ProductDetails() {
     };
   }, [currentImage]);
 
-  // تحديد صورة المنتج المصغرة بشكل صحيح (الأولوية: image_url ثم لقطة الشاشة الافتراضية)
-  const defaultScreenshot = '/screenshot.jpg'; // تأكد من توفر هذه الصورة في المجلد العام
+  // Correctly determine the product thumbnail (priority: image_url then default screenshot)
+  const defaultScreenshot = '/screenshot.jpg'; // Make sure this image is available in the public folder
   const ogImage =
     service?.image_url && service.image_url.trim() !== ''
       ? service.image_url
@@ -174,7 +173,7 @@ export default function ProductDetails() {
         className="min-h-screen flex items-center justify-center pt-24"
         style={backgroundStyles}
       >
-        <div className="text-xl text-secondary">جاري التحميل...</div>
+        <div className="text-xl text-secondary">Loading...</div>
       </div>
     );
   }
@@ -186,12 +185,12 @@ export default function ProductDetails() {
         className="min-h-screen flex flex-col items-center justify-center gap-4 pt-24"
         style={backgroundStyles}
       >
-        <div className="text-xl text-secondary">{error || 'المنتج غير موجود'}</div>
+        <div className="text-xl text-secondary">{error || 'Product not found'}</div>
         <button
           onClick={() => navigate('/')}
           className="bg-secondary text-primary px-6 py-2 rounded-lg hover:bg-opacity-90"
         >
-          العودة للرئيسية
+          Back to Home
         </button>
       </div>
     );

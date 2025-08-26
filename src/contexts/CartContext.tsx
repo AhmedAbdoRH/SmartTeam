@@ -132,7 +132,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsCartOpen(true);
     setIsAutoShowing(true);
     
-    // إخفاء السلة بعد 4 ثواني
+    // Hide the cart after 4 seconds
     const timer = setTimeout(() => {
       setIsCartOpen(false);
       setIsAutoShowing(false);
@@ -197,7 +197,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const sendOrderViaWhatsApp = () => {
     if (cartItems.length === 0) {
-      toast.warning('السلة فارغة، أضف منتجات أولاً');
+      toast.warning('Cart is empty, add products first');
       return;
     }
 

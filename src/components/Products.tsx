@@ -56,7 +56,7 @@ export default function Services() {
     }
   };
 
-  // عرض تدريجي للمنتجات مع زر "إظهار المزيد"
+  // Gradual display of products with a "Show More" button
   const [visibleCount, setVisibleCount] = useState(10);
   const filteredServices = selectedCategory
     ? services.filter(service => service.category_id === selectedCategory)
@@ -79,7 +79,7 @@ export default function Services() {
     return (
       <div className={`py-16 bg-gradient-to-br from-[${brownDark}] to-black`}>
         <div className="container mx-auto px-4 text-center text-red-600">
-          حدث خطأ أثناء تحميل المنتجات
+          An error occurred while loading products
         </div>
       </div>
     );
@@ -100,16 +100,16 @@ export default function Services() {
           }
         }}
       >
-        {/* العنوان */}
+        {/* Title */}
         <motion.h2
           className={`text-3xl font-bold text-center mb-12 text-[${lightGold}]`}
           initial={{ opacity: 0, y: -32 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, ease: 'easeOut' }}
         >
-           منتجاتنا
+           Our Products
         </motion.h2>
-        {/* الفاصل */}
+        {/* Separator */}
         <motion.div
           className={`w-full h-1 bg-[${lightGold}] mb-8`}
           initial={{ opacity: 0, y: -24 }}
@@ -117,7 +117,7 @@ export default function Services() {
           transition={{ duration: 0.25, ease: 'easeOut', delay: 0.13 }}
         />
 
-        {/* الفئات */}
+        {/* Categories */}
         <motion.div
           className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-22"
           initial="hidden"
@@ -140,7 +140,7 @@ export default function Services() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.25 }}
           >
-            جميع المنتجات
+            All Products
           </motion.button>
           <AnimatePresence>
             {categories.map((category, idx) => (
@@ -166,7 +166,7 @@ export default function Services() {
           </AnimatePresence>
         </motion.div>
 
-        {/* الخدمات */}
+        {/* Services */}
         <motion.div
   className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
   initial="hidden"

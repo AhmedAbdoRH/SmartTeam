@@ -27,8 +27,8 @@ export default function ProductCard({ title, description, imageUrl, price, saleP
     // Construct the URL for the specific product page
     const productUrl = `${window.location.origin}/product/${id}`;;
     // Create the pre-filled message for WhatsApp
-    const message = `استفسار عن المنتج: ${title}
-رابط المنتج: ${productUrl}`;
+    const message = `Inquiry about product: ${title}
+Product link: ${productUrl}`;
     // Open the WhatsApp chat link in a new tab
     window.open(`https://wa.me/201027381559?text=${encodeURIComponent(message)}`, '_blank');
   };
@@ -88,11 +88,11 @@ export default function ProductCard({ title, description, imageUrl, price, saleP
           <div className="flex flex-col items-end">
             {salePrice ? (
               <>
-                <span className={`font-bold text-lg text-[${lightGold}]`}>{salePrice} ج</span>
-                <span className="text-sm text-gray-400 line-through">{price} ج</span>
+                <span className={`font-bold text-lg text-[${lightGold}]`}>{salePrice} EGP</span>
+                <span className="text-sm text-gray-400 line-through">{price} EGP</span>
               </>
             ) : (
-              <span className={`font-bold text-lg text-[${lightGold}]`}>{price} ج</span>
+              <span className={`font-bold text-lg text-[${lightGold}]`}>{price} EGP</span>
             )}
           </div>
           
@@ -106,7 +106,7 @@ export default function ProductCard({ title, description, imageUrl, price, saleP
                   ? 'bg-green-500 text-white' 
                   : `bg-[${lightGold}]/90 hover:bg-[${lightGold}] text-secondary`
               } ${isAdding ? 'opacity-75' : ''}`}
-              title={isAdded ? 'تمت الإضافة' : 'أضف إلى السلة'}
+              title={isAdded ? 'Added' : 'Add to Cart'}
             >
               {isAdding ? (
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -123,7 +123,7 @@ export default function ProductCard({ title, description, imageUrl, price, saleP
               className={`bg-[${lightGold}]/90 hover:bg-yellow-500 text-secondary px-4 py-2 rounded-lg transition-colors duration-300 flex items-center gap-2 backdrop-blur-sm`}
             >
               <MessageCircle className="h-5 w-5" />
-              <span className="hidden sm:inline">اطلب الآن</span>
+              <span className="hidden sm:inline">Order Now</span>
             </button>
           </div>
         </div>

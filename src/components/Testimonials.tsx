@@ -91,9 +91,9 @@ export default function Testimonials() {
       <section className="relative py-12 px-4 md:px-0 border-t border-gray-700/30 mt-16 overflow-hidden">
         <div className="absolute inset-0 bg-black/30 backdrop-blur-md -z-10"></div>
         <div className="max-w-4xl mx-auto relative z-10">
-          <h2 className="text-3xl font-bold text-center text-white mb-10 drop-shadow-lg">آراء عملائنا</h2>
+          <h2 className="text-3xl font-bold text-center text-white mb-10 drop-shadow-lg">Our Customers' Opinions</h2>
           <div className="text-center text-gray-200 backdrop-blur-xl bg-white/10 rounded-xl shadow-2xl p-8 border border-white/20">
-            لا توجد صور آراء لعرضها حالياً.
+            No testimonial images to display currently.
           </div>
         </div>
       </section>
@@ -103,7 +103,7 @@ export default function Testimonials() {
   return (
     <section className="bg-black/70 py-12 px-4 md:px-0 border-t border-gray-700 mt-16 overflow-x-hidden"> {/* overflow-x-hidden is important */}
       <div className="max-w-4xl mx-auto">
-        <h2 className="text-3xl font-bold text-center text-white mb-10">آراء عملائنا</h2>
+        <h2 className="text-3xl font-bold text-center text-white mb-10">Our Customers' Opinions</h2>
 
         <div className="relative h-[400px] md:h-[500px] w-full"> {/* Fixed height container for cards */}
           {/* Testimonial Cards */}
@@ -180,7 +180,7 @@ export default function Testimonials() {
             <button
               onClick={prevTestimonial}
               className="bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all duration-300 transform hover:scale-110 focus:outline-none disabled:opacity-50"
-              aria-label="التعليق السابق"
+              aria-label="Previous Testimonial"
               disabled={isAnimating}
             >
               <ChevronRight className="w-6 h-6 md:w-8 md:h-8" />
@@ -196,7 +196,7 @@ export default function Testimonials() {
                   className={`w-3 h-3 rounded-full transition-all duration-300 ${
                     index === currentIndex ? 'bg-white w-6' : 'bg-white/30 hover:bg-white/50'
                   } disabled:opacity-50`}
-                  aria-label={`انتقل إلى التعليق ${index + 1}`}
+                  aria-label={`Go to Testimonial ${index + 1}`}
                 />
               ))}
             </div>

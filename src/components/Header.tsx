@@ -340,12 +340,12 @@ export default function Header({ storeSettings }: HeaderProps) {
               <ul className="flex gap-4 md:gap-6 items-center">
                 <li className="hidden md:block">
                   <Link to="/" className="text-white hover:text-[#FFD700] transition-colors duration-300">
-                    الرئيسية
+                    Home
                   </Link>
                 </li>
                 <li>
                   <a href="#contact" className="text-white hover:text-[#FFD700] transition-colors duration-300">
-                    تواصل معنا
+                    Contact Us
                   </a>
                 </li>
                 <li className="relative" ref={cartRef}>
@@ -379,10 +379,10 @@ export default function Header({ storeSettings }: HeaderProps) {
                       >
                         <div className="flex justify-between items-center mb-3 pb-2 border-b border-white/10">
                           <h3 className="text-white font-bold text-lg">
-                            سلة التسوق
+                            Shopping Cart
                           </h3>
                           <span className="text-sm text-white/60">
-                            {itemCount} عنصر
+                            {itemCount} {itemCount === 1 ? 'item' : 'items'}
                           </span>
                         </div>
                         <div className="max-h-96 overflow-y-auto pr-2">
@@ -402,7 +402,7 @@ export default function Header({ storeSettings }: HeaderProps) {
                               <div className="flex-1 text-right">
                                 <h4 className="text-white text-sm font-medium line-clamp-1">{item.title}</h4>
                                 <div className="flex items-center justify-between mt-1">
-                                  <span className="text-[#FFD700] font-bold">{item.price} ج</span>
+                                  <span className="text-[#FFD700] font-bold">{item.price} EGP</span>
                                   <div className="flex items-center gap-2">
                                     <button 
                                       onClick={(e) => {
@@ -411,7 +411,7 @@ export default function Header({ storeSettings }: HeaderProps) {
                                           updateQuantity(item.id, item.quantity - 1);
                                         } else {
                                           removeFromCart(item.id);
-                                          toast.success('تمت إزالة المنتج من السلة');
+                                          toast.success('Product removed from cart');
                                         }
                                       }}
                                       className="w-6 h-6 flex items-center justify-center bg-white/10 rounded hover:bg-white/20 transition-colors"
@@ -438,7 +438,7 @@ export default function Header({ storeSettings }: HeaderProps) {
                                   toast.success('تمت إزالة المنتج من السلة');
                                 }}
                                 className="text-white/50 hover:text-red-500 transition-colors p-1"
-                                aria-label="إزالة من السلة"
+                                aria-label="Remove from cart"
                               >
                                 <Trash2 className="h-4 w-4" />
                               </button>
@@ -447,7 +447,7 @@ export default function Header({ storeSettings }: HeaderProps) {
                         </div>
                         <div className="mt-4 pt-3 border-t border-white/10">
                           <div className="flex justify-between items-center mb-4">
-                            <span className="text-white/70">المجموع:</span>
+                            <span className="text-white/70">Total:</span>
                             <div className="text-right">
                               <div className="text-[#FFD700] font-bold text-lg">
                                 {(() => {
@@ -455,13 +455,13 @@ export default function Header({ storeSettings }: HeaderProps) {
                                     const numericValue = parseFloat(cartTotal);
                                     if (isNaN(numericValue)) {
                                       console.error('Invalid cart total value:', cartTotal);
-                                      return '٠٫٠٠ ج.م';
+                                      return '0.00 EGP';
                                     }
-                                    return new Intl.NumberFormat('ar-EG', { 
+                                    return new Intl.NumberFormat('en-US', { 
                                       style: 'decimal',
                                       minimumFractionDigits: 2,
                                       maximumFractionDigits: 2
-                                    }).format(numericValue) + ' ج';
+                                    }).format(numericValue) + ' EGP';
                                   } catch (error) {
                                     console.error('Error formatting cart total:', error);
                                     return '٠٫٠٠ ج.م';
@@ -479,7 +479,7 @@ export default function Header({ storeSettings }: HeaderProps) {
                             className="w-full bg-[#FFD700] hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded-lg transition-colors duration-300 flex items-center justify-center gap-2"
                           >
                             <ShoppingCart className="h-5 w-5" />
-                            اكمال الطلب
+                            Complete Order
                           </button>
                         </div>
                       </div>

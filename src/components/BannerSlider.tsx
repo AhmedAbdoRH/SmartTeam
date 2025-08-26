@@ -31,7 +31,7 @@ export default function BannerSlider({ banners }: BannerSliderProps) {
       className={`relative w-full h-[200px] md:h-[350px] lg:h-[500px] flex items-center justify-center overflow-hidden rounded-none mt-32 md:mt-32 fade-in-banner${fadeIn ? ' fade-in-active' : ''}`}
       style={{ marginTop: 'var(--header-height, 4.9rem)' }}
     >
-      {/* تأثير Fade-in للبانر عند أول تحميل */}
+      {/* Fade-in effect for the banner on first load */}
       <style>{`
         .fade-in-banner {
           opacity: 0;
@@ -77,7 +77,7 @@ export default function BannerSlider({ banners }: BannerSliderProps) {
           )}
         </div>
       ))}
-      {/* المؤشرات */}
+      {/* Indicators */}
       {banners.length > 1 && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-0.5 z-20">
           {banners.map((_, idx) => (
@@ -87,7 +87,7 @@ export default function BannerSlider({ banners }: BannerSliderProps) {
                 ${current === idx ? 'bg-white/20' : 'bg-white/10'}
               `}
               onClick={() => setCurrent(idx)}
-              aria-label={`انتقل إلى البانر رقم ${idx + 1}`}
+              aria-label={`Go to banner number ${idx + 1}`}
               style={{ minWidth: 6, minHeight: 6 }}
             />
           ))}

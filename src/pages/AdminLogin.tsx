@@ -46,9 +46,9 @@ export default function AdminLogin() {
       // Enhance error message if it's authentication related
       let userFriendlyError = err.message;
       if (err.message.includes('Invalid login credentials')) {
-          userFriendlyError = 'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
+          userFriendlyError = 'Incorrect email or password.';
       } else if (err.message.includes('Email not confirmed')) {
-           userFriendlyError = 'البريد الإلكتروني غير مؤكد. يرجى التحقق من صندوق الوارد الخاص بك.';
+           userFriendlyError = 'Email not confirmed. Please check your inbox.';
       }
       setError(userFriendlyError);
     } finally {
@@ -63,7 +63,7 @@ export default function AdminLogin() {
       {/* Replaced solid dark background with transparent background, blur, and subtle border */}
       <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 shadow-2xl shadow-black/40 w-full max-w-md border border-white/10 text-gray-200">
         {/* Title with light gold color */}
-        <h2 className={`text-2xl font-bold mb-6 text-center text-[${lightGold}]`}>تسجيل الدخول للوحة التحكم</h2>
+        <h2 className={`text-2xl font-bold mb-6 text-center text-[${lightGold}]`}>Admin Login</h2>
         {/* Error message styling */}
         {error && (
           <div className="bg-red-800/30 border border-red-700 text-red-300 p-3 rounded mb-4">
@@ -74,7 +74,7 @@ export default function AdminLogin() {
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
             {/* Label with light text color */}
-            <label className="block text-gray-300 mb-2">البريد الإلكتروني</label>
+            <label className="block text-gray-300 mb-2">Email</label>
             {/* Input with Glassmorphism style and gold focus ring */}
             <input
               type="email"
@@ -86,7 +86,7 @@ export default function AdminLogin() {
           </div>
           <div>
             {/* Label with light text color */}
-            <label className="block text-gray-300 mb-2">كلمة المرور</label>
+            <label className="block text-gray-300 mb-2">Password</label>
              {/* Input with Glassmorphism style and gold focus ring */}
             <input
               type="password"
@@ -102,7 +102,7 @@ export default function AdminLogin() {
             disabled={isLoading}
             className={`w-full bg-[${lightGold}] text-black py-3 rounded hover:bg-yellow-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-bold`}
           >
-            {isLoading ? 'جاري تسجيل الدخول...' : 'دخول'}
+            {isLoading ? 'Logging in...' : 'Login'}
           </button>
         </form>
       </div>

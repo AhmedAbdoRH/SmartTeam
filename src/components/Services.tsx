@@ -94,7 +94,7 @@ export default function Services() {
     return (
       <div className={`py-16 bg-gradient-to-br from-[${brownDark}] to-black`}>
         <div className="container mx-auto px-4 text-center text-red-600">
-          حدث خطأ أثناء تحميل المنتجات: {error}
+          An error occurred while loading products: {error}
         </div>
       </div>
     );
@@ -111,7 +111,7 @@ export default function Services() {
           visible: { opacity: 1, y: 0, transition: { duration: 0.8, delayChildren: 0.3, staggerChildren: 0.2 } },
         }}
       >
-        {/* العنوان */}
+        {/* Title */}
         <motion.h2
           className={`text-3xl font-bold text-center mb-12 text-[${lightGold}]`}
            variants={{
@@ -120,7 +120,7 @@ export default function Services() {
           }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
         >
-          منتجاتنا
+          Our Products
         </motion.h2>
         {/* Special Categories */}
         <motion.div
@@ -143,7 +143,7 @@ export default function Services() {
               visible: { opacity: 1, y: 0 },
             }}
           >
-            جميع المنتجات
+            All Products
           </motion.button>
 
           {/* Featured Products Category */}
@@ -161,7 +161,7 @@ export default function Services() {
               }}
             >
               <h3 className="text-lg font-semibold flex items-center gap-2">
-                <span className="text-yellow-400">✨</span> أحدث العروض
+                <span className="text-yellow-400">✨</span> Latest Offers
               </h3>
             </motion.button>
           )}
@@ -181,7 +181,7 @@ export default function Services() {
               }}
             >
               <h3 className="text-lg font-semibold flex items-center gap-2">
-                <span className="text-red-400">🔥</span> الأكثر مبيعاً
+                <span className="text-red-400">🔥</span> Best Sellers
               </h3>
             </motion.button>
           )}

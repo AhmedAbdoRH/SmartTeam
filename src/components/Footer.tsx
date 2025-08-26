@@ -41,16 +41,16 @@ export default function Footer({ storeSettings }: FooterProps) {
         <div className="flex flex-col items-center gap-1">
   {/* The entire line, now single */}
   <p className="text-white text-opacity-50 flex items-center gap-2 text-sm">
-    تم تطوير المتجر بواسطة
+    Store developed by
     <Target className="text-red-500 h-6 w-6" /> {/* Icon is now red and part of the same line */}
-    <a href="https://RehlatHadaf.online" className="text-white text-opacity-80 underline hover:no-underline">رحلة هدف للتسويق التجاري</a>
+    <a href="https://RehlatHadaf.online" className="text-white text-opacity-80 underline hover:no-underline">Rehlat Hadaf for Commercial Marketing</a>
   </p>
 </div>
 <Link
   to="/admin/login"
   className="text-secondary/0 hover:text-accent transition-colors duration-300 flex justify-center items-center"
 >
-            لوحة التحكم
+            Admin Panel
           </Link>
         </div>
       </div>

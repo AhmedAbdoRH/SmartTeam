@@ -25,7 +25,7 @@ export default function ProductImageSlider({ mainImageUrl, additionalImages }: P
   if (images.length === 0) {
     return (
       <div className="h-96 bg-gray-200 flex items-center justify-center">
-        <span className="text-gray-500">لا توجد صور متاحة</span>
+        <span className="text-gray-500">No images available</span>
       </div>
     );
   }

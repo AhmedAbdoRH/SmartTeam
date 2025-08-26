@@ -67,7 +67,7 @@ export default function ProductDetails() {
         .single();
 
       if (fetchError) throw fetchError;
-      if (!data) throw new Error('المنتج غير موجود');
+      if (!data) throw new Error('Product not found');
 
       setService(data);
     } catch (err: any) {
@@ -93,7 +93,7 @@ export default function ProductDetails() {
   const handleContact = () => {
     if (!service) return;
     const productUrl = window.location.href;
-    const message = `استفسار عن المنتج: ${service.title}\nرابط المنتج: ${productUrl}`;
+    const message = `Inquiry about product: ${service.title}\nProduct link: ${productUrl}`;
     window.open(`https://wa.me/201027381559?text=${encodeURIComponent(message)}`, '_blank');
   };
 
@@ -167,7 +167,7 @@ export default function ProductDetails() {
         className="min-h-screen flex items-center justify-center pt-24"
         style={backgroundStyles}
       >
-        <div className="text-xl text-secondary">جاري التحميل...</div>
+        <div className="text-xl text-secondary">Loading...</div>
       </div>
     );
   }
@@ -178,12 +178,12 @@ export default function ProductDetails() {
         className="min-h-screen flex flex-col items-center justify-center gap-4 pt-24"
         style={backgroundStyles}
       >
-        <div className="text-xl text-secondary">{error || 'المنتج غير موجود'}</div>
+        <div className="text-xl text-secondary">{error || 'Product not found'}</div>
         <button
           onClick={() => navigate('/')}
           className="bg-secondary text-primary px-6 py-2 rounded-lg hover:bg-opacity-90"
         >
-          العودة للرئيسية
+          Back to Home
         </button>
       </div>
     );
