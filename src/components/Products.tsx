@@ -79,7 +79,7 @@ export default function Services() {
     return (
       <div className={`py-16 bg-gradient-to-br from-[${brownDark}] to-black`}>
         <div className="container mx-auto px-4 text-center text-red-600">
-          حدث خطأ أثناء تحميل العطور
+          حدث خطأ أثناء تحميل المنتجات
         </div>
       </div>
     );
@@ -140,7 +140,7 @@ export default function Services() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.25 }}
           >
-            جميع العطور
+            جميع المنتجات
           </motion.button>
           <AnimatePresence>
             {categories.map((category, idx) => (

@@ -33,7 +33,7 @@ async function main() {
   html = html.replace(
     /<title>([\s\S]*?)<\/title>/,
     `<title>${
-      settings.meta_title || settings.store_name || 'سفير العطور'
+      settings.meta_title || settings.store_name || 'سفير المنتجات'
     }</title>`
   );
 

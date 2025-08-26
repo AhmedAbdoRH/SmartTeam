@@ -94,7 +94,7 @@ export default function Services() {
     return (
       <div className={`py-16 bg-gradient-to-br from-[${brownDark}] to-black`}>
         <div className="container mx-auto px-4 text-center text-red-600">
-          حدث خطأ أثناء تحميل العطور: {error}
+          حدث خطأ أثناء تحميل المنتجات: {error}
         </div>
       </div>
     );
@@ -143,7 +143,7 @@ export default function Services() {
               visible: { opacity: 1, y: 0 },
             }}
           >
-            جميع العطور
+            جميع المنتجات
           </motion.button>
 
           {/* Featured Products Category */}

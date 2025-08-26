@@ -219,7 +219,7 @@ function App() {
     return (
       <LoadingScreen
         logoUrl={storeSettings?.logo_url || '/logo.png'} // Provide a default logo
-        storeName={storeSettings?.store_name || 'متجر العطور'}
+        storeName={storeSettings?.store_name || 'متجر المنتجات'}
       />
     );
   }
@@ -248,7 +248,7 @@ function App() {
         }}
       >
         <Helmet>
-          <title>{storeSettings?.store_name || 'متجر العطور'}</title>
+          <title>{storeSettings?.store_name || 'متجر المنتجات'}</title>
                   } />
                   <Route path="/service/:id" element={
                     <Layout banners={banners}>

@@ -73,7 +73,7 @@ export default function Services() {
     return (
       <div className={`py-16 bg-gradient-to-br from-[${brownDark}] to-black`}>
         <div className="container mx-auto px-4 text-center text-red-600">
-          حدث خطأ أثناء تحميل العطور
+          حدث خطأ أثناء تحميل المنتجات
         </div>
       </div>
     );
@@ -103,7 +103,7 @@ export default function Services() {
                 : 'bg-black/20 text-white hover:bg-black/30 hover:shadow-md'
             }`}
           >
-            جميع العطور
+            جميع المنتجات
           </button>
           {categories.map((category) => (
             <button
