@@ -6,7 +6,7 @@ import { supabase } from '../lib/supabase';
 const brownDark = '#3d2c1d'; // Dark brown color
 
 // Define the light gold color using the hex code
-const lightGold = '#FFD700'; // Standard gold color
+const lightGold = '#00BFFF'; // Electric blue color
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -61,7 +61,7 @@ export default function AdminLogin() {
     <div className={`min-h-screen bg-gradient-to-br from-[${brownDark}] to-black flex items-center justify-center p-4`}>
       {/* Form container with Glassmorphism style */}
       {/* Replaced solid dark background with transparent background, blur, and subtle border */}
-      <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 shadow-2xl shadow-black/40 w-full max-w-md border border-white/10 text-gray-200">
+      <div className="bg-white/5 backdrop-blur-xl rounded-lg p-8 shadow-2xl shadow-black/40 w-full max-w-md border border-white/10 text-gray-200">
         {/* Title with light gold color */}
         <h2 className={`text-2xl font-bold mb-6 text-center text-[${lightGold}]`}>Admin Login</h2>
         {/* Error message styling */}

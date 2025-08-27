@@ -5,7 +5,7 @@ import type { Service, Category } from '../types/database';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
-const lightGold = '#FFD700';
+const lightGold = '#00BFFF';
 const brownDark = '#3d2c1d';
 const accentColor = '#d99323';
 
@@ -103,7 +103,7 @@ export default function Services() {
   return (
     <section className={`py-16 bg-gradient-to-br from-[${brownDark}] to-black`} id="products">
       <motion.div
-        className="container mx-auto px-4 bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 shadow-2xl shadow-black/40"
+        className="container mx-auto px-4 bg-white/5 backdrop-blur-xl rounded-lg p-8 border border-white/10 shadow-2xl shadow-black/40"
         initial="hidden"
         animate="visible"
         variants={{
@@ -133,7 +133,7 @@ export default function Services() {
           {/* All Products Button */}
           <motion.button
             onClick={() => setSelectedCategory(null)}
-            className={`p-4 rounded-xl transition-all duration-300 ${
+            className={`p-4 rounded-lg transition-all duration-300 ${
               !selectedCategory
                 ? `bg-[var(--color-secondary,#34C759)] text-black font-bold shadow-md`
                 : 'bg-black/20 text-white hover:bg-black/30 hover:shadow-md'
@@ -153,7 +153,7 @@ export default function Services() {
               className={`p-4 rounded-xl transition-all duration-300 ${
                 selectedCategory === 'featured'
                   ? `bg-[var(--color-secondary,#FFD700)] text-black font-bold shadow-md`
-                  : 'bg-yellow-500/20 text-yellow-300 hover:bg-yellow-500/30 hover:shadow-md'
+                  : 'bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 hover:shadow-md'
               }`}
               variants={{
                 hidden: { opacity: 0, y: 20 },
@@ -161,7 +161,7 @@ export default function Services() {
               }}
             >
               <h3 className="text-lg font-semibold flex items-center gap-2">
-                <span className="text-yellow-400">✨</span> Latest Offers
+                <span className="text-blue-400">✨</span> Latest Offers
               </h3>
             </motion.button>
           )}

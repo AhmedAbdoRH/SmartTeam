@@ -13,7 +13,7 @@ interface ProductCardProps {
 }
 
 // Define the light gold color using the hex code from the Hero component
-const lightGold = '#FFD700'; // This is standard gold color
+const lightGold = '#00BFFF'; // Electric blue color
 
 export default function ProductCard({ title, description, imageUrl, price, salePrice, id }: ProductCardProps) {
   /**
@@ -62,7 +62,7 @@ Product link: ${productUrl}`;
   };
 
   return (
-    <div className="group relative bg-secondary/5 backdrop-blur-md rounded-xl border border-secondary/20 overflow-hidden transition-all duration-150 hover:scale-105 hover:bg-secondary/10">
+    <div className="group relative bg-secondary/5 backdrop-blur-md rounded-lg border border-secondary/20 overflow-hidden transition-all duration-150 hover:scale-105 hover:bg-secondary/10">
       <Link to={`/product/${id}`} className="block">
         <div className="relative aspect-[4/3] w-full">
           <img
@@ -101,7 +101,7 @@ Product link: ${productUrl}`;
             <button
               onClick={handleAddToCart}
               disabled={isAdding || isAdded}
-              className={`flex items-center justify-center p-2 rounded-lg transition-all duration-300 ${
+              className={`flex items-center justify-center p-2 rounded-md transition-all duration-300 ${
                 isAdded 
                   ? 'bg-green-500 text-white' 
                   : `bg-[${lightGold}]/90 hover:bg-[${lightGold}] text-secondary`
@@ -109,7 +109,7 @@ Product link: ${productUrl}`;
               title={isAdded ? 'Added' : 'Add to Cart'}
             >
               {isAdding ? (
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-md animate-spin"></div>
               ) : isAdded ? (
                 <Check className="h-5 w-5" />
               ) : (
@@ -120,7 +120,7 @@ Product link: ${productUrl}`;
             {/* Contact Button */}
             <button
               onClick={handleContactClick}
-              className={`bg-[${lightGold}]/90 hover:bg-yellow-500 text-secondary px-4 py-2 rounded-lg transition-colors duration-300 flex items-center gap-2 backdrop-blur-sm`}
+              className={`bg-[${lightGold}]/90 hover:bg-yellow-500 text-secondary px-4 py-2 rounded-md transition-colors duration-300 flex items-center gap-2 backdrop-blur-sm`}
             >
               <MessageCircle className="h-5 w-5" />
               <span className="hidden sm:inline">Order Now</span>

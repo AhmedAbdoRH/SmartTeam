@@ -83,7 +83,7 @@ export default function BannerSlider({ banners }: BannerSliderProps) {
           {banners.map((_, idx) => (
             <button
               key={idx}
-              className={`w-1.5 h-1.5 rounded-full transition-colors border border-white/15
+              className={`w-1.5 h-1.5 rounded-md transition-colors border border-white/15
                 ${current === idx ? 'bg-white/20' : 'bg-white/10'}
               `}
               onClick={() => setCurrent(idx)}

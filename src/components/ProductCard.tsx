@@ -3,7 +3,7 @@ import ServiceCard from './ServiceCard';
 import { supabase } from '../lib/supabase';
 import type { Service, Category } from '../types/database';
 
-const lightGold = '#FFD700';
+const lightGold = '#00BFFF';
 const brownDark = '#3d2c1d';
 const accentColor = '#d99323'; // New accent color for selected categories
 
@@ -84,7 +84,7 @@ export default function Services() {
       <div className="container mx-auto px-4
                    bg-white/5
                    backdrop-blur-xl
-                   rounded-2xl
+                   rounded-lg
                    p-8
                    border border-white/10
                    shadow-2xl shadow-black/40">
@@ -97,7 +97,7 @@ export default function Services() {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-20">
           <button
             onClick={() => setSelectedCategory(null)}
-            className={`p-4 rounded-xl transition-all duration-300 ${
+            className={`p-4 rounded-lg transition-all duration-300 ${
               !selectedCategory
                 ? `bg-[var(--color-secondary,#34C759)] text-black font-bold shadow-md`
                 : 'bg-black/20 text-white hover:bg-black/30 hover:shadow-md'

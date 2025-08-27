@@ -215,7 +215,7 @@ export default function Header({ storeSettings }: HeaderProps) {
 
   return (
     <>
-      <header className="fixed top-0 w-full z-50 bg-black/50 backdrop-blur-md border-b border-white/10">
+      <header className="fixed top-0 w-full z-50 bg-[#12182b] backdrop-blur-md border-b border-white/10">
         <div className="container mx-auto px-4 py-2 flex items-center justify-between">
           <div className="flex items-center gap-4">
             {/* Mobile menu button */}
@@ -229,13 +229,13 @@ export default function Header({ storeSettings }: HeaderProps) {
             
             <Link to="/" className="flex-shrink-0">
               <img 
-                src={storeSettings?.logo_url || '/logo.png'}
+                src={storeSettings?.logo_url || '/logo.svg'}
                 alt={storeSettings?.store_name || 'Logo'} 
-                className="h-16 md:h-20 w-auto"
+                className="h-16 md:h-20 w-auto logo-glow"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  if (target.src !== '/logo.png') {
-                    target.src = '/logo.png';
+                  if (target.src !== '/logo.svg') {
+                    target.src = '/logo.svg';
                   }
                 }}
               />
@@ -257,8 +257,8 @@ export default function Header({ storeSettings }: HeaderProps) {
                   }
                 }}
                 onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
-                placeholder="Search for a product..."
-                className="w-full bg-white/10 text-white placeholder-white/50 rounded-full py-2 pr-10 pl-4 focus:outline-none focus:ring-2 focus:ring-[#FFD700] transition-all duration-300"
+                placeholder="Search for a product..." className="text-glow"
+                className="w-full bg-white/10 text-white placeholder-white/50 rounded-lg py-2 pr-10 pl-4 focus:outline-none focus:ring-2 focus:ring-[#FFD700] transition-all duration-300"
               />
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/50" />
               {searchQuery && (
@@ -276,7 +276,7 @@ export default function Header({ storeSettings }: HeaderProps) {
             
             {/* Search Results Dropdown */}
             {isSearchFocused && (searchResults.length > 0 || (searchQuery.length >= 2 && searchResults.length === 0)) && (
-              <div className="absolute mt-2 w-full bg-black/90 backdrop-blur-md rounded-lg shadow-xl border border-white/10 overflow-hidden z-50">
+              <div className="absolute mt-2 w-full bg-black/90 backdrop-blur-md rounded-md shadow-xl border border-white/10 overflow-hidden z-50">
                 {searchResults.map((product) => (
                   <Link
                     key={product.id}
@@ -284,7 +284,7 @@ export default function Header({ storeSettings }: HeaderProps) {
                     className="flex items-center p-3 hover:bg-white/10 transition-colors duration-200 border-b border-white/5 last:border-0"
                     onClick={clearSearch}
                   >
-                    <div className="w-12 h-12 flex-shrink-0 rounded-md overflow-hidden bg-white/5 flex items-center justify-center">
+                    <div className="w-12 h-12 flex-shrink-0 rounded-sm overflow-hidden bg-white/5 flex items-center justify-center">
                       <img 
                         src={product.displayImage} 
                         alt={product.title}
@@ -339,12 +339,12 @@ export default function Header({ storeSettings }: HeaderProps) {
             <nav>
               <ul className="flex gap-4 md:gap-6 items-center">
                 <li className="hidden md:block">
-                  <Link to="/" className="text-white hover:text-[#FFD700] transition-colors duration-300">
+                  <Link to="/" className="text-white hover:text-[#FFD700] transition-colors duration-300 text-glow">
                     Home
                   </Link>
                 </li>
                 <li>
-                  <a href="#contact" className="text-white hover:text-[#FFD700] transition-colors duration-300">
+                  <a href="#contact" className="text-white hover:text-[#FFD700] transition-colors duration-300 text-glow">
                     Contact Us
                   </a>
                 </li>
@@ -362,7 +362,7 @@ export default function Header({ storeSettings }: HeaderProps) {
                       <div className="relative">
                         <ShoppingCart className="h-6 w-6" />
                         {itemCount > 0 && (
-                          <span className="absolute -top-2 -right-2 bg-[#FFD700] text-black text-xs font-bold rounded-full h-5 min-w-[20px] flex items-center justify-center px-1 border-2 border-black/10 shadow-sm">
+                          <span className="absolute -top-2 -right-2 bg-[#FFD700] text-black text-xs font-bold rounded-md h-5 min-w-[20px] flex items-center justify-center px-1 border-2 border-black/10 shadow-sm">
                             {itemCount > 9 ? '9+' : itemCount}
                           </span>
                         )}
@@ -372,7 +372,7 @@ export default function Header({ storeSettings }: HeaderProps) {
                     {/* Cart Preview Dropdown */}
                     {isCartOpen && (
                       <div 
-                        className="fixed left-1/2 transform -translate-x-1/2 mt-2 w-[90vw] max-w-2xl max-h-[calc(100vh-8rem)] bg-black/95 backdrop-blur-md rounded-lg shadow-xl border border-white/10 z-50 p-4 overflow-y-auto"
+                        className="fixed left-1/2 transform -translate-x-1/2 mt-2 w-[90vw] max-w-2xl max-h-[calc(100vh-8rem)] bg-black/95 backdrop-blur-md rounded-md shadow-2xl border border-white/10 z-50 p-4 overflow-y-auto"
                         style={{
                           top: 'calc(var(--header-height, 5rem) + 1rem)'
                         }}
@@ -388,7 +388,7 @@ export default function Header({ storeSettings }: HeaderProps) {
                         <div className="max-h-96 overflow-y-auto pr-2">
                           {cartItems.map((item) => (
                             <div key={item.id} className="flex items-center gap-3 py-3 border-b border-white/5 last:border-0">
-                              <div className="w-16 h-16 flex-shrink-0 rounded-md overflow-hidden bg-white/5">
+                              <div className="w-16 h-16 flex-shrink-0 rounded-sm overflow-hidden bg-white/5">
                                 <img 
                                   src={item.imageUrl} 
                                   alt={item.title}
@@ -476,7 +476,7 @@ export default function Header({ storeSettings }: HeaderProps) {
                               sendOrderViaWhatsApp();
                               setIsCartHovered(false);
                             }}
-                            className="w-full bg-[#FFD700] hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded-lg transition-colors duration-300 flex items-center justify-center gap-2"
+                            className="w-full bg-[#FFD700] hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded-md transition-colors duration-300 flex items-center justify-center gap-2"
                           >
                             <ShoppingCart className="h-5 w-5" />
                             Complete Order
@@ -500,7 +500,7 @@ export default function Header({ storeSettings }: HeaderProps) {
                     value={searchQuery}
                     onChange={(e) => handleSearch(e.target.value)}
                     placeholder="Search for a product..."
-                    className="w-full bg-white/10 text-white placeholder-white/50 rounded-full py-3 px-5 pr-12 focus:outline-none focus:ring-2 focus:ring-[#FFD700]"
+                    className="w-full bg-white/10 text-white placeholder-white/50 rounded-lg py-3 px-5 pr-12 focus:outline-none focus:ring-2 focus:ring-[#FFD700]"
                   />
                   <button
                     onClick={() => {
@@ -514,7 +514,7 @@ export default function Header({ storeSettings }: HeaderProps) {
                   
                   {/* Mobile Search Results */}
                   {searchResults.length > 0 && (
-                    <div className="absolute left-0 right-0 mt-2 bg-black/90 rounded-lg shadow-xl border border-white/10 overflow-hidden z-50 max-h-80 overflow-y-auto">
+                    <div className="absolute left-0 right-0 mt-2 bg-black/90 rounded-md shadow-xl border border-white/10 overflow-hidden z-50 max-h-80 overflow-y-auto">
                       {searchResults.map((product) => (
                         <Link
                           key={product.id}
@@ -525,7 +525,7 @@ export default function Header({ storeSettings }: HeaderProps) {
                             setIsMobileSearchOpen(false);
                           }}
                         >
-                          <div className="w-10 h-10 flex-shrink-0 rounded-md overflow-hidden bg-white/5 flex items-center justify-center">
+                          <div className="w-10 h-10 flex-shrink-0 rounded-sm overflow-hidden bg-white/5 flex items-center justify-center">
                             <img 
                               src={product.displayImage} 
                               alt={product.title}

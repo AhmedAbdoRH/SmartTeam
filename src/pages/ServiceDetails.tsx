@@ -188,7 +188,7 @@ export default function ProductDetails() {
         <div className="text-xl text-secondary">{error || 'Product not found'}</div>
         <button
           onClick={() => navigate('/')}
-          className="bg-secondary text-primary px-6 py-2 rounded-lg hover:bg-opacity-90"
+          className="bg-secondary text-primary px-6 py-2 rounded-md hover:bg-opacity-90"
         >
           Back to Home
         </button>
@@ -217,10 +217,10 @@ export default function ProductDetails() {
         {/* This div centers the product card and grows */}
         <div className="flex items-center justify-center flex-grow py-8">
           <div className="container mx-auto px-4 max-w-4xl lg:max-w-5xl">
-            <div className="rounded-lg shadow-lg overflow-hidden glass">
+            <div className="rounded-md shadow-lg overflow-hidden glass">
               <div className="md:flex">
                 <div className="md:w-1/2">
-                  <div className="w-full aspect-[4/3] bg-gray-200 relative rounded-t-lg md:rounded-none md:rounded-s-lg overflow-hidden">
+                  <div className="w-full aspect-[4/3] bg-gray-200 relative rounded-t-md md:rounded-none md:rounded-s-md overflow-hidden">
                     {prevImageIndexState !== null && prevImageIndexState !== currentImage && (
                       <img
                         src={images[prevImageIndexState]}
@@ -258,7 +258,7 @@ export default function ProductDetails() {
                           {images.map((img, idx) => (
                             <button
                               key={img + idx}
-                              className={`w-2 h-2 rounded-full border-none transition-colors ease-in-out duration-500 ${
+                              className={`w-2 h-2 rounded-md border-none transition-colors ease-in-out duration-500 ${
                                 currentImage === idx ? 'bg-white' : 'bg-white/30'
                               }`}
                               onClick={() => setCurrentImage(idx)}
@@ -283,7 +283,7 @@ export default function ProductDetails() {
                     <div className="flex gap-4">
                       <button
                         onClick={handleContact}
-                        className="flex-1 bg-[#25D366] text-white py-3 px-6 rounded-lg font-bold hover:bg-opacity-90 flex items-center justify-center gap-2"
+                        className="flex-1 bg-[#25D366] text-white py-3 px-6 rounded-md font-bold hover:bg-opacity-90 flex items-center justify-center gap-2"
                       >
                         <MessageCircle className="h-5 w-5" />
                         تواصل معنا للطلب
@@ -293,7 +293,7 @@ export default function ProductDetails() {
                         href={`https://wa.me/?text=${encodeURIComponent(`شاهد هذا المنتج: ${service.title}\n${window.location.href}`)}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex-1 bg-[#128C7E] text-white py-3 px-6 rounded-lg font-bold hover:bg-opacity-90 flex items-center justify-center gap-2"
+                        className="flex-1 bg-[#128C7E] text-white py-3 px-6 rounded-md font-bold hover:bg-opacity-90 flex items-center justify-center gap-2"
                         style={{ textDecoration: 'none' }}
                       >
                         <MessageCircle className="h-5 w-5" />
@@ -331,7 +331,7 @@ export default function ProductDetails() {
                     className="
                       min-w-[160px] max-w-[180px]
                       md:min-w-[220px] md:max-w-[260px]
-                      bg-white/10 rounded-lg shadow p-2 flex-shrink-0 cursor-pointer hover:scale-105 transition
+                      bg-white/10 rounded-md shadow p-2 flex-shrink-0 cursor-pointer hover:scale-105 transition
                     "
                     onClick={() => navigate(`/product/${item.id}`)}
                   >
@@ -363,7 +363,7 @@ export default function ProductDetails() {
         <div className="flex justify-center pb-8">
           <button
             onClick={() => navigate('/')}
-            className="text-secondary hover:text-accent px-4 py-2 rounded-lg border border-secondary hover:border-accent" // Added border for better visibility
+            className="text-secondary hover:text-accent px-4 py-2 rounded-md border border-secondary hover:border-accent" // Added border for better visibility
           >
             ← العودة للرئيسية
           </button>

@@ -6,7 +6,7 @@ import { Trash2, Edit, Plus, Save, X, Upload, ChevronDown, ChevronUp, Facebook, 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const lightGold = '#FFD700';
+const lightGold = '#00BFFF';
 const brownDark = '#3d2c1d';
 const successGreen = '#228B22'; // Natural green color
 const greenButtonClass = `bg-[${successGreen}] text-white px-6 py-2 rounded flex items-center gap-2 disabled:opacity-50`;
@@ -34,7 +34,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
   const [editingCategory, setEditingCategory] = useState<string | null>(null);
   const [editingBanner, setEditingBanner] = useState<string | null>(null);
   const [deleteModal, setDeleteModal] = useState<{ id: string; type: 'category' | 'service' | 'banner' } | null>(null);
-  const [activeTab, setActiveTab] = useState<'store' | 'banners' | 'products' | 'theme' | 'testimonials'>('products');
+  const [activeTab, setActiveTab] = useState<'store' | 'banners' | 'products' | 'testimonials'>('products');
 
   // Testimonials state
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
@@ -89,19 +89,6 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
   const [keywords, setKeywords] = useState<string[]>([]);
   const [keywordInput, setKeywordInput] = useState('');
 
-  const [themeSettings, setThemeSettings] = useState({
-    primaryColor: '#FFD700',
-    secondaryColor: '#3d2c1d',
-    backgroundType: 'solid', // 'solid' or 'gradient'
-    backgroundColor: '#1a1a1a',
-    gradientStartColor: '#FFD700',
-    gradientEndColor: '#3d2c1d',
-    gradientAngle: 135,
-    backgroundGradient: '',
-    fontFamily: 'Cairo',
-  });
-  const [savingTheme, setSavingTheme] = useState(false);
-
   const navigate = useNavigate();
 
   // جلب آراء العملاء من قاعدة البيانات
@@ -130,9 +117,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
         await fetchData();
         await fetchStoreSettings();
         await fetchLogoUrl();
-        await fetchThemeSettings();
         await fetchTestimonials();
-        applyThemeSettings(themeSettings);
       } catch (err: any) {
         toast.error(`خطأ أثناء التهيئة: ${err.message}`);
       } finally {
@@ -184,7 +169,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
   };
 
   const fetchLogoUrl = async () => {
-    const { data } = supabase.storage.from('services').getPublicUrl('logo.png');
+    const { data } = supabase.storage.from('services').getPublicUrl('logo.svg');
     if (data?.publicUrl) {
       try {
         const response = await fetch(data.publicUrl, { method: 'HEAD' });
@@ -237,80 +222,6 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
       }
     } catch (err: any) {
       setError(`خطأ في جلب إعدادات المتجر: ${err.message}`);
-    }
-  };
-
-  const fetchThemeSettings = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('store_settings')
-        .select('theme_settings')
-        .eq('id', STORE_SETTINGS_ID)
-        .single();
-      if (error) return;
-      if (data?.theme_settings) {
-        const t = data.theme_settings;
-        // استنتاج نوع الخلفية من القيم المخزنة
-        let backgroundType = 'solid';
-        if (t.backgroundGradient && t.backgroundGradient !== '') backgroundType = 'gradient';
-        setThemeSettings({
-          ...t,
-          backgroundType,
-          gradientStartColor: t.gradientStartColor || '#FFD700',
-          gradientEndColor: t.gradientEndColor || '#3d2c1d',
-          gradientAngle: t.gradientAngle || 135,
-        });
-      }
-    } catch {}
-  };
-
-  const handleThemeSettingsSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSavingTheme(true);
-    try {
-      // خزّن فقط الخاصية المناسبة حسب نوع الخلفية
-      let toSave = { ...themeSettings };
-      if (themeSettings.backgroundType === 'solid') {
-        toSave.backgroundGradient = '';
-      } else if (themeSettings.backgroundType === 'gradient') {
-        toSave.backgroundGradient = `linear-gradient(${themeSettings.gradientAngle}deg, ${themeSettings.gradientStartColor}, ${themeSettings.gradientEndColor})`;
-        toSave.backgroundColor = '';
-      }
-      // لا تخزن backgroundType في القاعدة
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { backgroundType, ...dbTheme } = toSave;
-      const { error } = await supabase
-        .from('store_settings')
-        .update({ theme_settings: dbTheme })
-        .eq('id', STORE_SETTINGS_ID);
-      if (error) throw error;
-      setSuccessMsg('تم حفظ إعدادات المظهر بنجاح');
-      applyThemeSettings(dbTheme);
-      // تحديث بيانات storeSettings محلياً حتى تظهر التغييرات مباشرة
-      setStoreSettings(prev => ({
-        ...prev,
-        theme_settings: dbTheme
-      }));
-      // إعلام التطبيق الرئيسي لإعادة تحميل الإعدادات
-      if (onSettingsUpdate) onSettingsUpdate();
-    } catch (err: any) {
-      setError('خطأ في حفظ إعدادات المظهر: ' + err.message);
-    } finally {
-      setSavingTheme(false);
-    }
-  };
-
-  const applyThemeSettings = (settings: typeof themeSettings) => {
-    const root = document.documentElement;
-    root.style.setProperty('--primary-color', settings.primaryColor);
-    root.style.setProperty('--secondary-color', settings.secondaryColor);
-    root.style.setProperty('--font-family', settings.fontFamily);
-    if (settings.backgroundType === 'gradient' && settings.backgroundGradient) {
-      root.style.setProperty('--background-gradient', settings.backgroundGradient);
-      root.style.setProperty('--background-color', '');
-    } else {
-      root.style.setProperty('--background-gradient', '');
-      root.style.setProperty('--background-color', settings.backgroundColor);
     }
   };
 
@@ -413,7 +324,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
         throw new Error(`حجم الصورة يجب أن لا يتجاوز ${maxSize / (1024 * 1024)} ميجابايت`);
       }
       const fileExt = file.name.split('.').pop();
-      const fileName = type === 'logo' ? 'logo.png' :
+      const fileName = type === 'logo' ? 'logo.svg' :
         type === 'favicon' ? 'favicon.png' :
         type === 'og_image' ? 'og-image.png' :
         `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
@@ -1007,7 +918,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
       />
       {deleteModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-96">
+          <div className="bg-white rounded-md shadow-lg p-6 w-96">
             <h2 className="text-lg font-bold text-gray-800 mb-4">تأكيد الحذف</h2>
             <p className="text-gray-600 mb-6">
               {deleteModal.type === 'category'
@@ -1038,7 +949,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
       <div className="bg-black/60 backdrop-blur-sm shadow-lg sticky top-0 z-50 border-b border-white/10">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className={`text-2xl font-bold text-[${lightGold}]`}>لوحة التحكم</h1>
-          {isLoading && <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[${lightGold}]"></div>}
+          {isLoading && <div className="animate-spin rounded-md h-5 w-5 border-b-2 border-[${lightGold}]"></div>}
           <button
             onClick={handleLogout}
             className="bg-red-700 text-white px-4 py-2 rounded hover:bg-red-800 transition-colors font-semibold disabled:opacity-50"
@@ -1057,10 +968,10 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
           <div className="space-y-2">
             <button
               onClick={() => setActiveTab('products')}
-              className={`w-full flex items-center gap-2 px-4 py-3 rounded-lg font-bold transition-colors
+              className={`w-full flex items-center gap-2 px-4 py-3 rounded-md font-bold transition-colors
                 ${activeTab === 'products'
-                  ? 'bg-yellow-400 text-black shadow-lg border-2 border-yellow-500'
-                  : 'bg-[#232526] text-yellow-300 hover:bg-yellow-500/10 hover:text-yellow-400 border-2 border-transparent'}
+                  ? 'bg-blue-400 text-black shadow-lg border-2 border-blue-500'
+                  : 'bg-[#232526] text-blue-300 hover:bg-blue-500/10 hover:text-blue-400 border-2 border-transparent'}
                 `}
             >
               <Package className="h-5 w-5" />
@@ -1070,8 +981,8 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
               onClick={() => setActiveTab('store')}
               className={`w-full flex items-center gap-2 px-4 py-3 rounded-lg font-bold transition-colors
                 ${activeTab === 'store'
-                  ? 'bg-yellow-400 text-black shadow-lg border-2 border-yellow-500'
-                  : 'bg-[#232526] text-yellow-300 hover:bg-yellow-500/10 hover:text-yellow-400 border-2 border-transparent'}
+                  ? 'bg-blue-400 text-black shadow-lg border-2 border-blue-500'
+                  : 'bg-[#232526] text-blue-300 hover:bg-blue-500/10 hover:text-blue-400 border-2 border-transparent'}
                 `}
             >
               <Store className="h-5 w-5" />
@@ -1081,30 +992,19 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
               onClick={() => setActiveTab('banners')}
               className={`w-full flex items-center gap-2 px-4 py-3 rounded-lg font-bold transition-colors
                 ${activeTab === 'banners'
-                  ? 'bg-yellow-400 text-black shadow-lg border-2 border-yellow-500'
-                  : 'bg-[#232526] text-yellow-300 hover:bg-yellow-500/10 hover:text-yellow-400 border-2 border-transparent'}
+                  ? 'bg-blue-400 text-black shadow-lg border-2 border-blue-500'
+                  : 'bg-[#232526] text-blue-300 hover:bg-yellow-500/10 hover:text-blue-400 border-2 border-transparent'}
                 `}
             >
               <Image className="h-5 w-5" />
               <span>البانرات</span>
             </button>
             <button
-              onClick={() => setActiveTab('theme')}
-              className={`w-full flex items-center gap-2 px-4 py-3 rounded-lg font-bold transition-colors
-                ${activeTab === 'theme'
-                  ? 'bg-yellow-400 text-black shadow-lg border-2 border-yellow-500'
-                  : 'bg-[#232526] text-yellow-300 hover:bg-yellow-500/10 hover:text-yellow-400 border-2 border-transparent'}
-                `}
-            >
-              <Palette className="h-5 w-5" />
-              <span>تخصيص المظهر</span>
-            </button>
-            <button
               onClick={() => setActiveTab('testimonials')}
               className={`w-full flex items-center gap-2 px-4 py-3 rounded-lg font-bold transition-colors
                 ${activeTab === 'testimonials'
-                  ? 'bg-yellow-400 text-black shadow-lg border-2 border-yellow-500'
-                  : 'bg-[#232526] text-yellow-300 hover:bg-yellow-500/10 hover:text-yellow-400 border-2 border-transparent'}
+                  ? 'bg-blue-400 text-black shadow-lg border-2 border-blue-500'
+                  : 'bg-[#232526] text-blue-300 hover:bg-yellow-500/10 hover:text-blue-400 border-2 border-transparent'}
                 `}
             >
               <List className="h-5 w-5" />
@@ -1115,18 +1015,16 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
           {/* Main Content */}
           <div className="md:col-span-3">
             {/* --- Tab Header for all tabs --- */}
-            {(activeTab === 'banners' || activeTab === 'products' || activeTab === 'store' || activeTab === 'theme') && (
-              <div className="flex flex-col md:flex-row items-center justify-between gap-4 px-8 py-6 bg-gradient-to-r from-yellow-400/20 via-yellow-100/10 to-yellow-400/10 border-b border-yellow-400/20 mb-8 rounded-2xl">
+            {(activeTab === 'banners' || activeTab === 'products' || activeTab === 'store') && (
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4 px-8 py-6 bg-gradient-to-r from-yellow-400/20 via-yellow-100/10 to-yellow-400/10 border-b border-blue-400/20 mb-8 rounded-lg">
                 <div>
-                  <h2 className="text-2xl font-bold text-yellow-400 flex items-center gap-2">
-                    {activeTab === 'banners' && <Image className="w-7 h-7 text-yellow-400" />}
-                    {activeTab === 'products' && <Package className="w-7 h-7 text-yellow-400" />}
-                    {activeTab === 'store' && <Store className="w-7 h-7 text-yellow-400" />}
-                    {activeTab === 'theme' && <Palette className="w-7 h-7 text-yellow-400" />}
+                  <h2 className="text-2xl font-bold text-blue-400 flex items-center gap-2">
+                    {activeTab === 'banners' && <Image className="w-7 h-7 text-blue-400" />}
+                    {activeTab === 'products' && <Package className="w-7 h-7 text-blue-400" />}
+                    {activeTab === 'store' && <Store className="w-7 h-7 text-blue-400" />}
                     {activeTab === 'banners' && 'إدارة البانرات'}
                     {activeTab === 'products' && 'إدارة المنتجات'}
                     {activeTab === 'store' && 'إعدادات المتجر'}
-                    {activeTab === 'theme' && 'تخصيص المظهر'}
                   </h2>
                   {activeTab === 'banners' && (
                     <p className="text-gray-200 mt-1 text-sm text-center">يمكنك إضافة بانر نصي أو صور</p>
@@ -1137,22 +1035,19 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                   {activeTab === 'store' && (
                     <p className="text-gray-200 mt-1 text-sm">تعديل إعدادات المتجر والمعلومات العامة</p>
                   )}
-                  {activeTab === 'theme' && (
-                    <p className="text-gray-200 mt-1 text-sm">تخصيص ألوان وخطوط وخلفية الموقع</p>
-                  )}
                 </div>
                 <div className="flex items-center gap-4">
                   {activeTab === 'banners' && (
-                    <span className="inline-flex items-center gap-1 bg-yellow-400/20 text-yellow-300 px-3 py-1 rounded-full text-xs font-bold">
+                    <span className="inline-flex items-center gap-1 bg-blue-400/20 text-blue-300 px-3 py-1 rounded-md text-xs font-bold">
                       <Image className="w-4 h-4" /> {banners.length} بانر
                     </span>
                   )}
                   {activeTab === 'products' && (
                     <>
-                      <span className="inline-flex items-center gap-1 bg-yellow-400/20 text-yellow-300 px-3 py-1 rounded-full text-xs font-bold">
+                      <span className="inline-flex items-center gap-1 bg-blue-400/20 text-blue-300 px-3 py-1 rounded-full text-xs font-bold">
                         <Package className="w-4 h-4" /> {services.length} منتج
                       </span>
-                      <span className="inline-flex items-center gap-1 bg-blue-400/20 text-blue-300 px-3 py-1 rounded-full text-xs font-bold">
+                      <span className="inline-flex items-center gap-1 bg-blue-400/20 text-blue-300 px-3 py-1 rounded-md text-xs font-bold">
                         <List className="w-4 h-4" /> {categories.length} قسم
                       </span>
                     </>
@@ -1162,10 +1057,10 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
             )}
 
             {activeTab === 'testimonials' && (
-              <div className="flex flex-col md:flex-row items-center justify-between gap-4 px-8 py-6 bg-gradient-to-r from-yellow-400/20 via-yellow-100/10 to-yellow-400/10 border-b border-yellow-400/20 mb-8 rounded-2xl">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4 px-8 py-6 bg-gradient-to-r from-yellow-400/20 via-yellow-100/10 to-yellow-400/10 border-b border-blue-400/20 mb-8 rounded-2xl">
                 <div>
-                  <h2 className="text-2xl font-bold text-yellow-400 flex items-center gap-2">
-                    <List className="w-7 h-7 text-yellow-400" />
+                  <h2 className="text-2xl font-bold text-blue-400 flex items-center gap-2">
+                    <List className="w-7 h-7 text-blue-400" />
                     إدارة آراء العملاء
                   </h2>
                   <p className="text-gray-200 mt-1 text-sm">إدارة وتعديل آراء وتقييمات العملاء</p>
@@ -1179,7 +1074,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
             )}
 
             {activeTab === 'testimonials' && (
-  <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/10">
+  <div className="bg-white/10 backdrop-blur-md rounded-lg p-6 border border-white/10">
     <div className="flex items-center justify-between mb-6">
       <h2 className="text-2xl font-bold text-white">إعدادات قسم آراء العملاء</h2>
       <div className="flex items-center gap-2">
@@ -1286,8 +1181,8 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                   {isLoading && <p className="text-gray-400 text-center mt-4">جاري تحميل الآراء...</p>}
                   {!isLoading && testimonials.length === 0 && <p className="text-gray-400 text-center mt-4">لا توجد آراء لعرضها.</p>}
                   {!isLoading && testimonials.map((t: Testimonial) => (
-                    <div key={t.id} className="flex items-center gap-4 border border-gray-700/50 p-2 rounded-lg bg-gradient-to-r from-gray-800/40 to-gray-900/30">
-                      <img src={t.image_url} alt="testimonial" className="w-32 h-20 object-cover rounded-2xl bg-white" />
+                    <div key={t.id} className="flex items-center gap-4 border border-gray-700/50 p-2 rounded-md bg-gradient-to-r from-gray-800/40 to-gray-900/30">
+                      <img src={t.image_url} alt="testimonial" className="w-32 h-20 object-cover rounded-lg bg-white" />
                       <button
                         className="bg-red-700 text-white px-3 py-1 rounded"
                         onClick={async () => {
@@ -1313,177 +1208,8 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
               </div>
             )}
 
-            {activeTab === 'theme' && (
-              <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/10">
-                <h2 className="text-xl font-bold mb-6 text-white">تخصيص المظهر</h2>
-                <form onSubmit={handleThemeSettingsSave} className="space-y-6 max-w-lg mx-auto">
-                  <div>
-                    <label className="block mb-1 text-gray-300 font-medium">اللون الأساسي</label>
-                    <input
-                      type="color"
-                      value={themeSettings.primaryColor}
-                      onChange={e => setThemeSettings(s => ({ ...s, primaryColor: e.target.value }))}
-                      className="w-16 h-10 border-none rounded"
-                    />
-                  </div>
-                  <div>
-                    <label className="block mb-1 text-gray-300 font-medium">اللون الثانوي</label>
-                    <input
-                      type="color"
-                      value={themeSettings.secondaryColor}
-                      onChange={e => setThemeSettings(s => ({ ...s, secondaryColor: e.target.value }))}
-                      className="w-16 h-10 border-none rounded"
-                    />
-                  </div>
-                  <div>
-                    <label className="block mb-1 text-gray-300 font-medium">خلفية الموقع</label>
-                    <div className="flex gap-4 mb-2">
-                      <label className="flex items-center gap-1">
-                        <input
-                          type="radio"
-                          name="backgroundType"
-                          value="solid"
-                          checked={themeSettings.backgroundType === 'solid'}
-                          onChange={() => setThemeSettings(s => ({
-                            ...s,
-                            backgroundType: 'solid',
-                            backgroundGradient: '',
-                          }))}
-                        />
-                        لون ثابت
-                      </label>
-                      <label className="flex items-center gap-1">
-                        <input
-                          type="radio"
-                          name="backgroundType"
-                          value="gradient"
-                          checked={themeSettings.backgroundType === 'gradient'}
-                          onChange={() => setThemeSettings(s => ({
-                            ...s,
-                            backgroundType: 'gradient',
-                            backgroundGradient: `linear-gradient(${s.gradientAngle}deg, ${s.gradientStartColor}, ${s.gradientEndColor})`,
-                          }))}
-                        />
-                        تدرج لوني
-                      </label>
-                    </div>
-                    {themeSettings.backgroundType === 'solid' && (
-                      <div>
-                        <input
-                          type="color"
-                          value={themeSettings.backgroundColor}
-                          onChange={e => setThemeSettings(s => ({
-                            ...s,
-                            backgroundColor: e.target.value,
-                            backgroundGradient: '',
-                          }))}
-                          className="w-16 h-10 border-none rounded"
-                        />
-                        <span className="ml-2 text-xs text-gray-400">اختر لون الخلفية الثابت</span>
-                      </div>
-                    )}
-                    {themeSettings.backgroundType === 'gradient' && (
-                      <div className="flex flex-col gap-2">
-                        <div className="flex items-center gap-2">
-                          <label className="text-xs text-gray-400">البداية</label>
-                          <input
-                            type="color"
-                            value={themeSettings.gradientStartColor}
-                            onChange={e => setThemeSettings(s => {
-                              const gradient = `linear-gradient(${s.gradientAngle}deg, ${e.target.value}, ${s.gradientEndColor})`;
-                              return {
-                                ...s,
-                                gradientStartColor: e.target.value,
-                                backgroundGradient: gradient,
-                              };
-                            })}
-                            className="w-10 h-8 border-none rounded"
-                          />
-                          <label className="text-xs text-gray-400">النهاية</label>
-                          <input
-                            type="color"
-                            value={themeSettings.gradientEndColor}
-                            onChange={e => setThemeSettings(s => {
-                              const gradient = `linear-gradient(${s.gradientAngle}deg, ${s.gradientStartColor}, ${e.target.value})`;
-                              return {
-                                ...s,
-                                gradientEndColor: e.target.value,
-                                backgroundGradient: gradient,
-                              };
-                            })}
-                            className="w-10 h-8 border-none rounded"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-xs text-gray-400 mr-2">زاوية التدرج</label>
-                          <input
-                            type="number"
-                            value={themeSettings.gradientAngle}
-                            onChange={e => setThemeSettings(s => {
-                              const angle = parseInt(e.target.value, 10) || 0;
-                              const gradient = `linear-gradient(${angle}deg, ${s.gradientStartColor}, ${s.gradientEndColor})`;
-                              return {
-                                ...s,
-                                gradientAngle: angle,
-                                backgroundGradient: gradient,
-                              };
-                            })}
-                            className="w-20 p-1 rounded bg-black/30 text-white border border-white/10"
-                            min="0"
-                            max="360"
-                          />
-                        </div>
-                        <span className="text-xs text-gray-400">اختر ألوان وزاوية التدرج</span>
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block mb-1 text-gray-300 font-medium">الخط الرئيسي</label>
-                    <select
-                      value={themeSettings.fontFamily}
-                      onChange={e => setThemeSettings(s => ({ ...s, fontFamily: e.target.value }))}
-                      className="w-full p-2 rounded bg-black/30 text-white border border-white/10"
-                    >
-                      <option value="Cairo">Cairo</option>
-                      <option value="Tajawal">Tajawal</option>
-                      <option value="Arial">Arial</option>
-                      <option value="Tahoma">Tahoma</option>
-                    </select>
-                  </div>
-                  <div className="flex justify-end">
-                    <button
-                      type="submit"
-                      className="bg-[var(--primary-color,#34C759)] text-white px-6 py-2 rounded hover:bg-[var(--primary-color,#34C759)] transition-colors flex items-center gap-2 disabled:opacity-50"
-                      disabled={savingTheme}
-                    >
-                      <Save className="w-5 h-5" />
-                      حفظ إعدادات المظهر
-                    </button>
-                  </div>
-                </form>
-                <div className="mt-8">
-                  <h3 className="text-lg font-bold mb-2 text-gray-200">معاينة مباشرة</h3>
-                  <div
-                    className="rounded-lg p-6"
-                    style={{
-                      background:
-                        themeSettings.backgroundType === 'gradient'
-                          ? themeSettings.backgroundGradient
-                          : themeSettings.backgroundColor,
-                      color: themeSettings.primaryColor,
-                      fontFamily: themeSettings.fontFamily,
-                      border: `2px solid ${themeSettings.secondaryColor}`
-                    }}
-                  >
-                    <span style={{ color: themeSettings.primaryColor, fontWeight: 'bold' }}>عنوان رئيسي</span>
-                    <p style={{ color: themeSettings.secondaryColor }}>هذا مثال على نص ثانوي</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
             {activeTab === 'store' && (
-              <div className="bg-white/10 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/40 border border-white/10 overflow-hidden">
+              <div className="bg-white/10 backdrop-blur-xl rounded-lg shadow-2xl shadow-black/40 border border-white/10 overflow-hidden">
                 <div className="p-6 border-t border-white/10">
                   <form onSubmit={handleStoreSettingsUpdate} className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1705,7 +1431,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                   <div className="flex mb-8 gap-2">
                     <button
                       onClick={() => setBannersSubTab('image')}
-                      className={`flex-1 py-2 rounded-t-lg font-bold ${
+                      className={`flex-1 py-2 rounded-t-md font-bold ${
                         bannersSubTab === 'image'
                           ? 'bg-[#34C759] text-white shadow-lg border-b-4 border-[#34C759]'
                           : 'bg-black/20 text-white hover:bg-[#34C759]/10 hover:text-[#34C759]'
@@ -1835,7 +1561,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                       <div
                         key={banner.id}
                         className={`
-                          relative group border border-gray-700/50 rounded-xl bg-gradient-to-br from-gray-800/60 to-gray-900/40 shadow-lg transition-all duration-300 overflow-hidden
+                          relative group border border-gray-700/50 rounded-lg bg-gradient-to-br from-gray-800/60 to-gray-900/40 shadow-lg transition-all duration-300 overflow-hidden
                           ${editingBanner === banner.id ? `ring-2 ring-[#34C759] shadow-[0_0_16px_2px_#34C75933]` : 'hover:border-yellow-400/60 hover:shadow-yellow-400/10'}
                         `}
                       >
@@ -1848,7 +1574,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                         {/* Banner content */}
                         <div className="p-0 flex flex-col h-full">
                           {/* Banner image or icon */}
-                          <div className="relative w-full h-40 flex items-center justify-center bg-gradient-to-tr from-yellow-100/10 to-black/10 rounded-t-xl overflow-hidden">
+                          <div className="relative w-full h-40 flex items-center justify-center bg-gradient-to-tr from-yellow-100/10 to-black/10 rounded-t-lg overflow-hidden">
                             {banner.type === 'image' && banner.image_url ? (
                               <img
                                 src={banner.image_url}
@@ -1877,7 +1603,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                               <button
                                 onClick={() => !isLoading && handleEditBanner(banner)}
                                 title="تعديل البانر"
-                                className={`text-blue-400 hover:text-blue-300 transition-colors p-1 rounded-full border border-blue-400/30 bg-blue-900/10 disabled:opacity-50 disabled:cursor-not-allowed`}
+                                className={`text-blue-400 hover:text-blue-300 transition-colors p-1 rounded-md border border-blue-400/30 bg-blue-900/10 disabled:opacity-50 disabled:cursor-not-allowed`}
                                 disabled={editingBanner === banner.id || isLoading}
                               >
                                 <Edit size={18} />
@@ -1885,7 +1611,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                               <button
                                 onClick={() => !isLoading && handleDeleteBanner(banner.id)}
                                 title="حذف البانر"
-                                className="text-red-500 hover:text-red-400 transition-colors p-1 rounded-full border border-red-400/30 bg-red-900/10 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="text-red-500 hover:text-red-400 transition-colors p-1 rounded-md border border-red-400/30 bg-red-900/10 disabled:opacity-50 disabled:cursor-not-allowed"
                                 disabled={isLoading}
                               >
                                 <Trash2 size={18} />
@@ -2043,7 +1769,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                               id="is_featured"
                               checked={newService.is_featured || false}
                               onChange={(e) => setNewService({ ...newService, is_featured: e.target.checked })}
-                              className="h-5 w-5 text-yellow-400 rounded focus:ring-yellow-400 border-gray-600 bg-gray-700"
+                              className="h-5 w-5 text-yellow-400 rounded focus:ring-blue-400 border-gray-600 bg-gray-700"
                             />
                             <label htmlFor="is_featured" className="mr-2 text-sm font-medium text-white">
                               أحدث العروض
@@ -2055,7 +1781,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                               id="is_best_seller"
                               checked={newService.is_best_seller || false}
                               onChange={(e) => setNewService({ ...newService, is_best_seller: e.target.checked })}
-                              className="h-5 w-5 text-yellow-400 rounded focus:ring-yellow-400 border-gray-600 bg-gray-700"
+                              className="h-5 w-5 text-yellow-400 rounded focus:ring-blue-400 border-gray-600 bg-gray-700"
                             />
                             <label htmlFor="is_best_seller" className="mr-2 text-sm font-medium text-white">
                               الأكثر مبيعاً
@@ -2091,7 +1817,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                                 />
                                 <button
                                   type="button"
-                                  className="absolute top-0 left-0 bg-black/60 text-white rounded-full p-1 text-xs"
+                                  className="absolute top-0 left-0 bg-black/60 text-white rounded-md p-1 text-xs"
                                   onClick={() => setNewService(prev => ({
                                     ...prev,
                                     gallery: prev.gallery.filter((g) => g !== img),
@@ -2100,7 +1826,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                                   title="حذف الصورة"
                                 >×</button>
                                 {newService.image_url === img && (
-                                  <span className="absolute bottom-0 right-0 bg-yellow-400 text-black text-xs px-1 rounded-tr rounded-bl">رئيسية</span>
+                                  <span className="absolute bottom-0 right-0 bg-yellow-400 text-black text-xs px-1 rounded-tr-md rounded-bl-md">رئيسية</span>
                                 )}
                               </div>
                             ))}
@@ -2142,7 +1868,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                         {!isLoading && services.length === 0 && <p className="text-gray-400 text-center mt-4">لا توجد منتجات لعرضها.</p>}
                         {isLoading && services.length === 0 && <p className="text-gray-400 text-center mt-4">جاري تحميل المنتجات...</p>}
                         {services.map((service) => (
-                          <div key={service.id} className={`border border-gray-700/50 p-4 rounded-lg bg-gradient-to-r from-gray-800/40 to-gray-900/30 transition-all duration-300 ${editingService === service.id ? `ring-2 ring-[#34C759] shadow-lg shadow-[#34C759]/20` : 'hover:border-gray-600 hover:bg-gray-800/60'}`}>
+                          <div key={service.id} className={`border border-gray-700/50 p-4 rounded-md bg-gradient-to-r from-gray-800/40 to-gray-900/30 transition-all duration-300 ${editingService === service.id ? `ring-2 ring-[#34C759] shadow-lg shadow-[#34C759]/20` : 'hover:border-gray-600 hover:bg-gray-800/60'}`}>
                             <div className="flex justify-between items-start gap-4">
                               {/* صورة المنتج أولاً */}
                               {service.image_url && (
@@ -2251,7 +1977,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                         {!isLoading && categories.length === 0 && <p className="text-gray-400 text-center mt-4">لا توجد أقسام لعرضها.</p>}
                         {isLoading && categories.length === 0 && <p className="text-gray-400 text-center mt-4">جاري تحميل الأقسام...</p>}
                         {categories.map((category) => (
-                          <div key={category.id} className={`border border-gray-700/50 p-4 rounded-lg bg-gradient-to-r from-gray-800/40 to-gray-900/30 transition-all duration-300 ${editingCategory === category.id ? `ring-2 ring-[#34C759] shadow-lg shadow-[#34C759]/20` : 'hover:border-gray-600 hover:bg-gray-800/60'}`}>
+                          <div key={category.id} className={`border border-gray-700/50 p-4 rounded-md bg-gradient-to-r from-gray-800/40 to-gray-900/30 transition-all duration-300 ${editingCategory === category.id ? `ring-2 ring-[#34C759] shadow-lg shadow-[#34C759]/20` : 'hover:border-gray-600 hover:bg-gray-800/60'}`}>
                             <div className="flex justify-between items-start gap-4">
                               <div className="flex-1 overflow-hidden">
                                 <h4 className="font-bold text-white text-lg truncate" title={category.name}>{category.name}</h4>
@@ -2289,13 +2015,13 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
       </div>
       {/* تبويب آراء العملاء */}
       {activeTab === 'testimonials' && (
-        <div className="bg-black/40 rounded-lg p-8 shadow-lg border border-gray-70000 mt-0">
+        <div className="bg-black/40 rounded-md p-8 shadow-lg border border-gray-70000 mt-0">
           <div className="">
             {isLoading && <p className=""></p>}
             {!isLoading && testimonials.length === 0 && <p className="text-gray-400 text-center mt-4"></p>}
             {testimonials.map((t: Testimonial) => (
               <div key={t.id} className="">
-                {t.image_url && <img src={t.image_url} alt={t.customer_name} className="w-0 h-16 rounded-full object-cover " />}
+                {t.image_url && <img src={t.image_url} alt={t.customer_name} className="w-0 h-16 rounded-md object-cover " />}
               </div>
             ))}
           </div>
@@ -2308,7 +2034,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
           onClick={() => {
         window.location.href = '/';
           }}
-          className="bg-white/70 hover:bg-white text-black font-bold px-8 py-3 rounded-full shadow-lg transition-colors border-2 "
+          className="bg-white/10 backdrop-blur-md text-white font-bold px-8 py-3 rounded-md shadow-lg transition-colors border-2 border-white/20"
         >
         ← العودة للصفحة الرئيسية
         </button>

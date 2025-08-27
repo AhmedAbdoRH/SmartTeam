@@ -141,8 +141,8 @@ function App() {
             primaryColor: '#c7a17a',
             secondaryColor: '#fff',
             fontFamily: 'Cairo, sans-serif',
-            backgroundColor: '#000',
-            backgroundGradient: 'linear-gradient(135deg, #232526 0%, #414345 100%)'
+            backgroundColor: '#12182b',
+            backgroundGradient: ''
           }
         } as StoreSettings);
         return;
@@ -153,6 +153,21 @@ function App() {
         if (data.logo_url === 'https://dndnvufgohkacfbqenhj.supabase.co/storage/v1/object/public/services/logo.png') {
           data.logo_url = null;
         }
+
+        // Apply custom theme settings
+        if (data.theme_settings) {
+          data.theme_settings.backgroundColor = '#12182b';
+          data.theme_settings.secondaryColor = '#ffffff';
+        } else {
+          data.theme_settings = {
+            backgroundColor: '#12182b',
+            secondaryColor: '#ffffff',
+            primaryColor: '#00BFFF',
+            fontFamily: 'Cairo',
+            backgroundGradient: ''
+          }
+        }
+
         setStoreSettings(data);
       } else {
         // No data found, set default settings
@@ -167,8 +182,8 @@ function App() {
             primaryColor: '#c7a17a',
             secondaryColor: '#fff',
             fontFamily: 'Cairo, sans-serif',
-            backgroundColor: '#000',
-            backgroundGradient: 'linear-gradient(135deg, #232526 0%, #414345 100%)'
+            backgroundColor: '#12182b',
+            backgroundGradient: ''
           }
         } as StoreSettings);
       }
@@ -186,8 +201,8 @@ function App() {
           primaryColor: '#c7a17a',
           secondaryColor: '#fff',
           fontFamily: 'Cairo, sans-serif',
-          backgroundColor: '#000',
-          backgroundGradient: 'linear-gradient(135deg, #232526 0%, #414345 100%)'
+          backgroundColor: '#12182b',
+          backgroundGradient: ''
         }
       } as StoreSettings);
     }
@@ -228,7 +243,7 @@ function App() {
   if (loading) {
     return (
       <LoadingScreen
-        logoUrl={storeSettings?.logo_url || '/logo.png'} // Provide a default logo
+        logoUrl={storeSettings?.logo_url || '/logo.svg'} // Provide a default logo
         storeName={storeSettings?.store_name || 'Smart Team'}
       />
     );

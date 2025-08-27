@@ -77,7 +77,7 @@ export default function CategoryProducts() {
         <div className="text-xl text-secondary">{error || 'Category not found'}</div>
         <Link
           to="/"
-          className="bg-accent text-white px-6 py-2 rounded-lg hover:bg-accent-light transition-colors"
+          className="bg-accent text-white px-6 py-2 rounded-md hover:bg-accent-light transition-colors"
         >
           Back to Home
         </Link>
@@ -102,7 +102,7 @@ export default function CategoryProducts() {
           </Link>
         </div>
 
-        <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 shadow-2xl shadow-black/40">
+        <div className="bg-white/5 backdrop-blur-xl rounded-lg p-8 border border-white/10 shadow-2xl shadow-black/40">
           <h1 className="text-3xl font-bold mb-12 text-accent">{category.name}</h1>
           {category.description && (
             <p className="text-secondary/70 mb-8">{category.description}</p>

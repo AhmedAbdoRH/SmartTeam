@@ -137,7 +137,7 @@ const Cart: React.FC = () => {
                   {cartItems.map((item, index) => (
                     <motion.li
                       key={item.id}
-                      className="flex items-center p-3 border rounded-lg"
+                      className="flex items-center p-3 border rounded-md"
                       variants={itemVariants}
                       custom={index}
                       initial="hidden"
@@ -146,7 +146,7 @@ const Cart: React.FC = () => {
                       layout
                     >
                       {item.imageUrl && (
-                        <div className="w-20 h-20 flex-shrink-0 rounded-md overflow-hidden border">
+                        <div className="w-20 h-20 flex-shrink-0 rounded-sm overflow-hidden border">
                           <img
                             src={item.imageUrl}
                             alt={item.title}
@@ -223,7 +223,7 @@ const Cart: React.FC = () => {
                     // Close cart after checkout
                     toggleCart(false);
                   }}
-                  className="w-full bg-green-600 text-white py-3 rounded-md hover:bg-green-700 transition-colors"
+                  className="w-full bg-green-600 text-white py-3 rounded-sm hover:bg-green-700 transition-colors"
                 >
                   Complete Order
                 </button>

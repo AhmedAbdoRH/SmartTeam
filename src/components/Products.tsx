@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 import type { Service, Category } from '../types/database';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const lightGold = '#FFD700';
+const lightGold = '#00BFFF';
 const brownDark = '#3d2c1d';
 const accentColor = '#d99323'; // New accent color for selected categories
 
@@ -88,7 +88,7 @@ export default function Services() {
   return (
     <section className={`py-16 bg-gradient-to-br from-[${brownDark}] to-black`} id="products">
       <motion.div
-        className="container mx-auto px-4 bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 shadow-2xl shadow-black/40"
+        className="container mx-auto px-4 bg-white/5 backdrop-blur-xl rounded-lg p-8 border border-white/10 shadow-2xl shadow-black/40"
         initial="hidden"
         animate="visible"
         variants={{
@@ -131,7 +131,7 @@ export default function Services() {
         >
           <motion.button
             onClick={() => setSelectedCategory(null)}
-            className={`p-4 rounded-xl transition-all duration-300 ${
+            className={`p-4 rounded-lg transition-all duration-300 ${
               !selectedCategory
                 ? `bg-[var(--color-secondary,#34C759)] text-black font-bold shadow-md`
                 : 'bg-black/20 text-white hover:bg-black/30 hover:shadow-md'
@@ -208,7 +208,7 @@ export default function Services() {
             <div className="flex justify-center mt-8">
               <button
                 onClick={handleShowMore}
-                className="px-8 py-3 rounded-lg bg-[var(--color-secondary,#FFD700)] text-black font-bold text-lg shadow hover:bg-yellow-400 transition-colors duration-200"
+                className="px-8 py-3 rounded-md bg-[var(--color-secondary,#FFD700)] text-black font-bold text-lg shadow hover:bg-yellow-400 transition-colors duration-200"
               >
                 Show More
               </button>

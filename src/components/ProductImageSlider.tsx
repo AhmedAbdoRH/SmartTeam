@@ -48,7 +48,7 @@ export default function ProductImageSlider({ mainImageUrl, additionalImages }: P
           <img
             src={imageUrl}
             alt={`Product ${index + 1}`}
-            className="w-full h-full object-cover rounded-lg"
+            className="w-full h-full object-cover rounded-md"
           />
         </SwiperSlide>
       ))}
