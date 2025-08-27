@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Target , Facebook, Instagram, Twitter, Snail as Snapchat, Youtube } from 'lucide-react';
+import { Target, Facebook, Instagram, Twitter, Snail as Snapchat, Youtube } from 'lucide-react';
 import type { StoreSettings } from '../types/database';
 
 interface FooterProps {
@@ -38,18 +38,28 @@ export default function Footer({ storeSettings }: FooterProps) {
               ))}
             </div>
           )}
-        <div className="flex flex-col items-center gap-1">
-  {/* The entire line, now single */}
-  <p className="text-white text-opacity-50 flex items-center gap-2 text-sm">
-    Store developed by
-    <Target className="text-red-500 h-6 w-6" /> {/* Icon is now red and part of the same line */}
-    <a href="https://RehlatHadaf.online" className="text-white text-opacity-80 underline hover:no-underline">Rehlat Hadaf for Commercial Marketing</a>
-  </p>
-</div>
-<Link
-  to="/admin/login"
-  className="text-secondary/0 hover:text-accent transition-colors duration-300 flex justify-center items-center"
->
+          
+          {/* === بداية الجزء المعدل === */}
+          <div className="flex flex-col items-center gap-1">
+            <p className="text-white text-opacity-50 text-xs">
+              Store developed by
+            </p>
+            <a 
+              href="https://RehlatHadaf.online" 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white text-opacity-80 underline hover:no-underline flex items-center gap-1.5 text-xs"
+            >
+              <Target className="text-red-500 h-4 w-4" />
+              Rehlat Hadaf for Commercial Marketing
+            </a>
+          </div>
+          {/* === نهاية الجزء المعدل === */}
+
+          <Link
+            to="/admin/login"
+            className="text-secondary/0 hover:text-accent transition-colors duration-300 flex justify-center items-center"
+          >
             Admin Panel
           </Link>
         </div>
