@@ -149,6 +149,10 @@ function App() {
       }
       
       if (data) {
+        // Fix invalid logo URL that causes 400 error
+        if (data.logo_url === 'https://dndnvufgohkacfbqenhj.supabase.co/storage/v1/object/public/services/logo.png') {
+          data.logo_url = null;
+        }
         setStoreSettings(data);
       } else {
         // No data found, set default settings

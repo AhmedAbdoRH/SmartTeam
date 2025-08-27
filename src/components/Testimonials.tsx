@@ -26,10 +26,11 @@ export default function Testimonials() {
         const { data, error } = await supabase
           .from('testimonials')
           .select('id, image_url, is_active, created_at')
-          .eq('is_active', true)
           .order('created_at', { ascending: false });
         if (error) throw error;
-        setTestimonials(data || []);
+        // Filter testimonials with valid image URLs (regardless of is_active status)
+        const validTestimonials = (data || []).filter(t => t.image_url && t.image_url.trim() !== '');
+        setTestimonials(validTestimonials);
       } catch (err) {
         console.error('Error fetching testimonials:', err);
         setTestimonials([]);
