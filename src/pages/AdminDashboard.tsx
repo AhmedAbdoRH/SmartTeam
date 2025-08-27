@@ -34,7 +34,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
   const [editingCategory, setEditingCategory] = useState<string | null>(null);
   const [editingBanner, setEditingBanner] = useState<string | null>(null);
   const [deleteModal, setDeleteModal] = useState<{ id: string; type: 'category' | 'service' | 'banner' } | null>(null);
-  const [activeTab, setActiveTab] = useState<'store' | 'banners' | 'products' | 'testimonials'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'banners' | 'testimonials' | 'store'>('products');
 
   // Testimonials state
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
@@ -977,17 +977,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
               <Package className="h-5 w-5" />
               <span>إدارة المنتجات</span>
             </button>
-            <button
-              onClick={() => setActiveTab('store')}
-              className={`w-full flex items-center gap-2 px-4 py-3 rounded-lg font-bold transition-colors
-                ${activeTab === 'store'
-                  ? 'bg-blue-400 text-black shadow-lg border-2 border-blue-500'
-                  : 'bg-[#232526] text-blue-300 hover:bg-blue-500/10 hover:text-blue-400 border-2 border-transparent'}
-                `}
-            >
-              <Store className="h-5 w-5" />
-              <span>إعدادات المتجر</span>
-            </button>
+
             <button
               onClick={() => setActiveTab('banners')}
               className={`w-full flex items-center gap-2 px-4 py-3 rounded-lg font-bold transition-colors
@@ -1009,6 +999,17 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
             >
               <List className="h-5 w-5" />
               <span>آراء العملاء</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('store')}
+              className={`w-full flex items-center gap-2 px-4 py-3 rounded-lg font-bold transition-colors
+                ${activeTab === 'store'
+                  ? 'bg-blue-400 text-black shadow-lg border-2 border-blue-500'
+                  : 'bg-[#232526] text-blue-300 hover:bg-blue-500/10 hover:text-blue-400 border-2 border-transparent'}
+                `}
+            >
+              <Store className="h-5 w-5" />
+              <span>إعدادات المتجر</span>
             </button>
           </div>
 
