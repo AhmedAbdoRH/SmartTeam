@@ -1018,10 +1018,10 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
             {(activeTab === 'banners' || activeTab === 'products' || activeTab === 'store') && (
               <div className="flex flex-col md:flex-row items-center justify-between gap-4 px-8 py-6 bg-gradient-to-r from-yellow-400/20 via-yellow-100/10 to-yellow-400/10 border-b border-blue-400/20 mb-8 rounded-lg">
                 <div>
-                  <h2 className="text-2xl font-bold text-blue-400 flex items-center gap-2">
-                    {activeTab === 'banners' && <Image className="w-7 h-7 text-blue-400" />}
-                    {activeTab === 'products' && <Package className="w-7 h-7 text-blue-400" />}
-                    {activeTab === 'store' && <Store className="w-7 h-7 text-blue-400" />}
+                  <h2 className="text-2xl font-bold text-white text-glow flex items-center gap-2">
+                    {activeTab === 'banners' && <Image className="w-7 h-7 text-white text-glow" />}
+                    {activeTab === 'products' && <Package className="w-7 h-7 text-white text-glow" />}
+                    {activeTab === 'store' && <Store className="w-7 h-7 text-white text-glow" />}
                     {activeTab === 'banners' && 'إدارة البانرات'}
                     {activeTab === 'products' && 'إدارة المنتجات'}
                     {activeTab === 'store' && 'إعدادات المتجر'}
@@ -1038,16 +1038,16 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                 </div>
                 <div className="flex items-center gap-4">
                   {activeTab === 'banners' && (
-                    <span className="inline-flex items-center gap-1 bg-blue-400/20 text-blue-300 px-3 py-1 rounded-md text-xs font-bold">
+                    <span className="inline-flex items-center gap-1 bg-blue-400/20 text-white text-glow px-3 py-1 rounded-md text-xs font-bold">
                       <Image className="w-4 h-4" /> {banners.length} بانر
                     </span>
                   )}
                   {activeTab === 'products' && (
                     <>
-                      <span className="inline-flex items-center gap-1 bg-blue-400/20 text-blue-300 px-3 py-1 rounded-full text-xs font-bold">
+                      <span className="inline-flex items-center gap-1 bg-blue-400/20 text-white text-glow px-3 py-1 rounded-full text-xs font-bold">
                         <Package className="w-4 h-4" /> {services.length} منتج
                       </span>
-                      <span className="inline-flex items-center gap-1 bg-blue-400/20 text-blue-300 px-3 py-1 rounded-md text-xs font-bold">
+                      <span className="inline-flex items-center gap-1 bg-blue-400/20 text-white text-glow px-3 py-1 rounded-md text-xs font-bold">
                         <List className="w-4 h-4" /> {categories.length} قسم
                       </span>
                     </>
@@ -1059,8 +1059,8 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
             {activeTab === 'testimonials' && (
               <div className="flex flex-col md:flex-row items-center justify-between gap-4 px-8 py-6 bg-gradient-to-r from-yellow-400/20 via-yellow-100/10 to-yellow-400/10 border-b border-blue-400/20 mb-8 rounded-2xl">
                 <div>
-                  <h2 className="text-2xl font-bold text-blue-400 flex items-center gap-2">
-                    <List className="w-7 h-7 text-blue-400" />
+                  <h2 className="text-2xl font-bold text-white text-glow flex items-center gap-2">
+                    <List className="w-7 h-7 text-white text-glow" />
                     إدارة آراء العملاء
                   </h2>
                   <p className="text-gray-200 mt-1 text-sm">إدارة وتعديل آراء وتقييمات العملاء</p>
@@ -1213,147 +1213,12 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                 <div className="p-6 border-t border-white/10">
                   <form onSubmit={handleStoreSettingsUpdate} className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-white mb-1">اسم المتجر</label>
-                        <input
-                          type="text"
-                          value={storeSettings.store_name || ''}
-                          onChange={(e) => setStoreSettings({ ...storeSettings, store_name: e.target.value })}
-                          className="w-full p-3 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#34C759] focus:border-transparent bg-black/20 backdrop-blur-sm border border-white/10"
-                          placeholder="اسم المتجر"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-white mb-1">وصف المتجر</label>
-                        <input
-                          type="text"
-                          value={storeSettings.store_description || ''}
-                          onChange={(e) => setStoreSettings({ ...storeSettings, store_description: e.target.value })}
-                          className="w-full p-3 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#34C759] focus:border-transparent bg-black/20 backdrop-blur-sm border border-white/10"
-                          placeholder="وصف المتجر"
-                        />
-                      </div>
+
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {/* Logo Upload */}
-                      <div>
-                        <label className="block text-sm font-medium text-white mb-1">شعار المتجر</label>
-                        <div className="relative">
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => handleSettingsImageUpload(e, 'logo')}
-                            className="hidden"
-                            id="logo-upload"
-                          />
-                          <label
-                            htmlFor="logo-upload"
-                            className="w-full flex items-center justify-center px-4 py-2 rounded cursor-pointer transition-colors text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#34C759] focus:border-transparent bg-black/20 backdrop-blur-sm border border-white/10 hover:bg-black/30"
-                          >
-                            <Upload className="w-5 h-5 ml-2" />
-                            {storeSettings.logo_url ? 'تغيير الشعار' : 'رفع الشعار'}
-                          </label>
-                          {storeSettings.logo_url && (
-                            <img
-                              src={storeSettings.logo_url}
-                              alt="الشعار"
-                              className="mt-2 h-16 w-auto object-contain"
-                            />
-                          )}
-                        </div>
-                      </div>
 
-                      {/* Favicon Upload */}
-                      <div>
-                        <label className="block text-sm font-medium text-white mb-1">أيقونة المتصفح</label>
-                        <div className="relative">
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => handleSettingsImageUpload(e, 'favicon')}
-                            className="hidden"
-                            id="favicon-upload"
-                          />
-                          <label
-                            htmlFor="favicon-upload"
-                            className="w-full flex items-center justify-center px-4 py-2 rounded cursor-pointer transition-colors text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#34C759] focus:border-transparent bg-black/20 backdrop-blur-sm border border-white/10 hover:bg-black/30"
-                          >
-                            <Upload className="w-5 h-5 ml-2" />
-                            {storeSettings.favicon_url ? 'تغيير الأيقونة' : 'رفع الأيقونة'}
-                          </label>
-                          {storeSettings.favicon_url && (
-                            <img
-                              src={storeSettings.favicon_url}
-                              alt="أيقونة المتصفح"
-                              className="mt-2 h-8 w-8 object-contain"
-                            />
-                          )}
-                        </div>
-                      </div>
 
-                      {/* OG Image Upload */}
-                      <div>
-                        <label className="block text-sm font-medium text-white mb-1">صورة المشاركة</label>
-                        <div className="relative">
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => handleSettingsImageUpload(e, 'og_image')}
-                            className="hidden"
-                            id="og-image-upload"
-                          />
-                          <label
-                            htmlFor="og-image-upload"
-                            className="w-full flex items-center justify-center px-4 py-2 rounded cursor-pointer transition-colors text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#34C759] focus:border-transparent bg-black/20 backdrop-blur-sm border border-white/10 hover:bg-black/30"
-                          >
-                            <Upload className="w-5 h-5 ml-2" />
-                            {storeSettings.og_image_url ? 'تغيير الصورة' : 'رفع الصورة'}
-                          </label>
-                          {storeSettings.og_image_url && (
-                            <img
-                              src={storeSettings.og_image_url}
-                              alt="صورة المشاركة"
-                              className="mt-2 h-16 w-auto object-contain"
-                            />
-                          )}
-                        </div>
-                      </div>
-                    </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-white mb-1">عنوان الصفحة</label>
-                        <input
-                          type="text"
-                          value={storeSettings.meta_title || ''}
-                          onChange={(e) => setStoreSettings({ ...storeSettings, meta_title: e.target.value })}
-                          className="w-full p-3 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#34C759] focus:border-transparent bg-black/20 backdrop-blur-sm border border-white/10"
-                          placeholder="عنوان الصفحة"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-white mb-1">وصف الصفحة</label>
-                        <input
-                          type="text"
-                          value={storeSettings.meta_description || ''}
-                          onChange={(e) => setStoreSettings({ ...storeSettings, meta_description: e.target.value })}
-                          className="w-full p-3 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#34C759] focus:border-transparent bg-black/20 backdrop-blur-sm border border-white/10"
-                          placeholder="وصف الصفحة"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-white mb-1">الكلمات المفتاحية (مفصولة بفواصل)</label>
-                      <input
-                        type="text"
-                        value={storeSettings.keywords?.join(', ') || ''}
-                        onChange={(e) => setStoreSettings({ ...storeSettings, keywords: e.target.value.split(',').map(k => k.trim()) })}
-                        className="w-full p-3 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#34C759] focus:border-transparent bg-black/20 backdrop-blur-sm border border-white/10"
-                        placeholder="كلمة1, كلمة2, كلمة3"
-                      />
-                    </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       <div>
@@ -1567,7 +1432,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                       >
                         {/* Banner type indicator */}
                         <div className="absolute top-3 right-3 z-10">
-                          <span className="px-2 py-0.5 rounded text-xs font-bold bg-blue-500/20 text-blue-300">
+                          <span className="px-2 py-0.5 rounded text-xs font-bold bg-blue-500/20 text-white text-glow">
                             {banner.type === 'text' ? 'نصي' : 'صورة'}
                           </span>
                         </div>
@@ -1603,7 +1468,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                               <button
                                 onClick={() => !isLoading && handleEditBanner(banner)}
                                 title="تعديل البانر"
-                                className={`text-blue-400 hover:text-blue-300 transition-colors p-1 rounded-md border border-blue-400/30 bg-blue-900/10 disabled:opacity-50 disabled:cursor-not-allowed`}
+                                className={`text-white hover:text-gray-300 transition-colors p-1 rounded-md border border-white/30 bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed`}
                                 disabled={editingBanner === banner.id || isLoading}
                               >
                                 <Edit size={18} />
@@ -1905,7 +1770,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                                 <button
                                   onClick={() => !isLoading && handleEditService(service)}
                                   title="تعديل المنتج"
-                                  className={`text-blue-400 hover:text-blue-300 transition-colors p-1 disabled:opacity-50 disabled:cursor-not-allowed`}
+                                  className={`text-white hover:text-gray-300 transition-colors p-1 disabled:opacity-50 disabled:cursor-not-allowed`}
                                   disabled={editingService === service.id || isLoading}
                                 >
                                   <Edit size={18} />

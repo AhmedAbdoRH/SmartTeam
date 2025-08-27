@@ -257,8 +257,7 @@ export default function Header({ storeSettings }: HeaderProps) {
                   }
                 }}
                 onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
-                placeholder="Search for a product..." className="text-glow"
-                className="w-full bg-white/10 text-white placeholder-white/50 rounded-lg py-2 pr-10 pl-4 focus:outline-none focus:ring-2 focus:ring-[#FFD700] transition-all duration-300"
+                placeholder="Search for a product..." className="text-glow w-full bg-white/10 text-white placeholder-white/50 rounded-lg py-2 pr-10 pl-4 focus:outline-none focus:ring-2 focus:ring-[#FFD700] transition-all duration-300"
               />
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/50" />
               {searchQuery && (
