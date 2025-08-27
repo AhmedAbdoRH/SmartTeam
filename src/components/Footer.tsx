@@ -39,7 +39,6 @@ export default function Footer({ storeSettings }: FooterProps) {
             </div>
           )}
           
-          {/* === بداية الجزء المعدل === */}
           <div className="flex flex-col items-center gap-1">
             <p className="text-white text-opacity-50 text-xs">
               Store developed by
@@ -48,13 +47,12 @@ export default function Footer({ storeSettings }: FooterProps) {
               href="https://RehlatHadaf.online" 
               target="_blank"
               rel="noopener noreferrer"
-              className="text-white text-opacity-80 underline hover:no-underline flex items-center gap-1.5 text-xs"
+              className="text-white text-opacity-60 underline hover:no-underline flex items-center gap-1.5 text-xs" // تم تعديل الشفافية هنا إلى text-opacity-75
             >
-              <Target className="text-red-500 h-4 w-4" />
-              Rehlat Hadaf for Commercial Marketing
+               Rehlat Hadaf for Commercial Marketing 
+              <Target className="text-red-500 h-4 w-4" /> {/* تم نقل الأيقونة لليسار هنا */}
             </a>
           </div>
-          {/* === نهاية الجزء المعدل === */}
 
           <Link
             to="/admin/login"
