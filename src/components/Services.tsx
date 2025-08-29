@@ -153,7 +153,7 @@ export default function Services() {
               className={`p-4 rounded-xl transition-all duration-300 ${
                 selectedCategory === 'featured'
                   ? `bg-[var(--color-secondary,#FFD700)] text-black font-bold shadow-md`
-                  : 'bg-blue-500/20 text-white text-glow hover:bg-blue-500/30 hover:shadow-md'
+                  : 'bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 hover:shadow-md'
               }`}
               variants={{
                 hidden: { opacity: 0, y: 20 },
@@ -161,7 +161,7 @@ export default function Services() {
               }}
             >
               <h3 className="text-lg font-semibold flex items-center gap-2">
-                <span className="text-white text-glow">✨</span> Latest Offers
+                <span className="text-blue-400">✨</span> Latest Offers
               </h3>
             </motion.button>
           )}

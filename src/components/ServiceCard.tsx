@@ -96,12 +96,12 @@ Product link: ${productUrl}`;
             )}
           </div>
           
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
             {/* Add to Cart Button */}
             <button
               onClick={handleAddToCart}
               disabled={isAdding || isAdded}
-              className={`flex items-center justify-center p-2 rounded-md transition-all duration-300 ${
+              className={`p-2 flex items-center justify-center rounded-md transition-all duration-300 ${
                 isAdded 
                   ? 'bg-green-500 text-white' 
                   : `bg-[${lightGold}]/90 hover:bg-[${lightGold}] text-secondary`
@@ -120,8 +120,9 @@ Product link: ${productUrl}`;
             {/* Contact Button */}
             <button
               onClick={handleContactClick}
-              className={`bg-[${lightGold}]/90 hover:bg-yellow-500 text-secondary px-4 py-2 rounded-md transition-colors duration-300 flex items-center gap-2 backdrop-blur-sm`}
+              className="blue-button blue-order-button flex items-center gap-2"
             >
+              <div className="blue-button-border"></div>
               <MessageCircle className="h-5 w-5" />
               <span className="hidden sm:inline">Order Now</span>
             </button>

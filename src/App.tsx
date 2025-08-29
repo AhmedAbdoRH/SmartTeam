@@ -162,7 +162,7 @@ function App() {
           data.theme_settings = {
             backgroundColor: '#12182b',
             secondaryColor: '#ffffff',
-            primaryColor: '#00BFFF',
+            primaryColor: '#FFD700',
             fontFamily: 'Cairo',
             backgroundGradient: ''
           }

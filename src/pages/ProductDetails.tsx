@@ -266,8 +266,9 @@ export default function ProductDetails() {
                   <div className="flex gap-4 items-center">
                     <button
                       onClick={handleContact}
-                      className="flex-1 bg-[#25D366] text-white py-3 px-6 rounded-md font-bold hover:bg-opacity-90 flex items-center justify-center gap-2"
+                      className="green-button flex-1 flex items-center justify-center gap-2"
                     >
+                      <div className="green-button-border"></div>
                       <MessageCircle className="h-5 w-5" />
                       تواصل معنا للطلب
                     </button>
@@ -282,9 +283,10 @@ export default function ProductDetails() {
                         });
                         toast.success('تمت إضافة المنتج إلى السلة');
                       }}
-                      className="bg-[#00BFFF] hover:bg-yellow-500 text-black p-3 rounded-md font-bold flex items-center justify-center"
+                      className="yellow-button yellow-cart-button flex items-center justify-center"
                       title="أضف إلى السلة"
                     >
+                      <div className="yellow-button-border"></div>
                       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <circle cx="9" cy="21" r="1"></circle>
                         <circle cx="20" cy="21" r="1"></circle>
