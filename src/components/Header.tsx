@@ -555,11 +555,11 @@ export default function Header({ storeSettings }: HeaderProps) {
         <AnimatePresence>
           {isMenuOpen && (
             <motion.div
-              initial={{ x: '100%' }}
+              initial={{ x: '-100%' }}
               animate={{ x: 0 }}
-              exit={{ x: '100%' }}
+              exit={{ x: '-100%' }}
               transition={{ type: 'tween', ease: 'easeInOut' }}
-              className="fixed inset-y-0 right-0 w-72 bg-black/95 backdrop-blur-lg z-50 shadow-2xl md:hidden pt-16 flex flex-col"
+              className="fixed inset-y-0 left-0 w-72 bg-black/95 backdrop-blur-lg z-50 shadow-2xl md:hidden pt-16 flex flex-col"
               ref={menuRef}
             >
               <nav className="p-4 flex-1 overflow-y-auto">

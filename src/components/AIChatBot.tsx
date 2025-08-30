@@ -31,7 +31,7 @@ const RenderMessageWithLinks = ({ text }: { text: string }) => {
                                 href={url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="mt-2 mb-2 flex items-center justify-center gap-2 text-center bg-emerald-500/20 hover:bg-emerald-400/40 text-emerald-300 font-semibold py-1.5 px-3 rounded-lg transition-all border border-emerald-500/50"
+                                className="mt-2 mb-2 flex items-center justify-center gap-2 text-center bg-[#1b82ae]/20 hover:bg-[#1b82ae]/40 text-[#1b82ae] font-semibold py-1.5 px-3 rounded-lg transition-all border border-[#1b82ae]/50"
                             >
                                 <ExternalLink className="w-3 h-3" />
                                 عرض المنتج
@@ -212,12 +212,12 @@ export default function AIChatBot() {
                         exit={{ opacity: 0, scale: 0.8, y: 20 }}
                         className="fixed bottom-24 left-6 w-80 h-96 bg-black/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 z-50 flex flex-col overflow-hidden"
                     >
-                        <div className="flex items-center justify-between p-4 border-b border-white/20 bg-gradient-to-r from-green-600/20 to-emerald-600/20">
+                        <div className="flex items-center justify-between p-4 border-b border-white/20 bg-gradient-to-r from-[#1b82ae]/20 to-blue-700/20">
                             <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center"><Bot className="h-4 w-4 text-white" /></div>
+                                <div className="w-8 h-8 bg-gradient-to-r from-[#1b82ae] to-blue-700 rounded-full flex items-center justify-center"><Bot className="h-4 w-4 text-white" /></div>
                                 <div>
                                     <h3 className="text-white font-semibold text-sm">مساعد {storeData.storeSettings?.store_name || 'SmartTeam'}</h3>
-                                    <p className="text-green-400 text-xs">متصل الآن</p>
+                                    <p className="text-[#1b82ae] text-xs">متصل الآن</p>
                                 </div>
                             </div>
                             <button onClick={() => setIsOpen(false)} className="text-white/70 hover:text-white transition-colors p-1"><X className="h-5 w-5" /></button>
@@ -232,14 +232,14 @@ export default function AIChatBot() {
                                     className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
                                 >
                                     <div className={`flex items-start gap-2 max-w-[95%] ${message.isUser ? 'flex-row-reverse' : 'flex-row'}`}>
-                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-1 ${message.isUser ? 'bg-gradient-to-r from-green-600 to-emerald-700' : 'bg-gradient-to-r from-green-500 to-emerald-500'}`}>
+                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-1 ${message.isUser ? 'bg-gradient-to-r from-blue-600 to-[#1b82ae]' : 'bg-gradient-to-r from-[#1b82ae] to-blue-700'}`}>
                                             {message.isUser ? <User className="h-3 w-3 text-white" /> : <Bot className="h-3 w-3 text-white" />}
                                         </div>
                                         <div className={`flex flex-col gap-1 ${message.isUser ? 'items-end' : 'items-start'}`}>
-                                            <div className={`rounded-2xl px-3 py-2 text-[13.6px] flex flex-col ${message.isUser ? 'bg-gradient-to-r from-green-600 to-emerald-700 text-white' : 'bg-white/10 text-white border border-white/20'}`}>
+                                            <div className={`rounded-2xl px-3 py-2 text-[13.6px] flex flex-col ${message.isUser ? 'bg-gradient-to-r from-blue-600 to-[#1b82ae] text-white' : 'bg-white/10 text-white border border-white/20'}`}>
                                                 <RenderMessageWithLinks text={message.text} />
                                                 {!message.isUser && message.id !== '1' && (
-                                                    <a href="https://wa.me/201027381559" target="_blank" rel="noopener noreferrer" className="mt-3 flex items-center justify-center gap-2 text-xs bg-green-600/30 hover:bg-green-600/50 text-white font-semibold py-1.5 px-3 rounded-lg transition-all border border-green-500/50">
+                                                    <a href="https://wa.me/201027381559" target="_blank" rel="noopener noreferrer" className="mt-3 flex items-center justify-center gap-2 text-xs bg-[#1b82ae]/30 hover:bg-[#1b82ae]/50 text-white font-semibold py-1.5 px-3 rounded-lg transition-all border border-[#1b82ae]/50">
                                                         <MessageSquare className="w-3 h-3" /> تواصل واتساب مع البائع
                                                     </a>
                                                 )}
@@ -255,7 +255,7 @@ export default function AIChatBot() {
                             {isLoading && (
                                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex justify-start">
                                     <div className="flex items-start gap-2">
-                                        <div className="w-6 h-6 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center"><Bot className="h-3 w-3 text-white" /></div>
+                                        <div className="w-6 h-6 bg-gradient-to-r from-[#1b82ae] to-blue-700 rounded-full flex items-center justify-center"><Bot className="h-3 w-3 text-white" /></div>
                                         <div className="bg-white/10 rounded-2xl px-3 py-2 border border-white/20">
                                             <div className="flex items-center">
                                                 <div className="w-1.5 h-1.5 bg-white/50 rounded-full animate-bounce mx-1"></div>
@@ -278,12 +278,12 @@ export default function AIChatBot() {
                                     onKeyPress={handleKeyPress}
                                     placeholder="اسأل عن أي نظام ذكي..."
                                     disabled={isLoading}
-                                    className="flex-1 bg-white/10 text-white placeholder-white/50 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 border border-white/20 disabled:opacity-50"
+                                    className="flex-1 bg-white/10 text-white placeholder-white/50 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1b82ae] border border-white/20 disabled:opacity-50"
                                 />
                                 <button
                                     onClick={handleSendMessage}
                                     disabled={!inputText.trim() || isLoading}
-                                    className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white p-2 rounded-full transition-all flex items-center justify-center"
+                                    className="bg-gradient-to-r from-[#1b82ae] to-blue-700 hover:from-blue-600 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed text-white p-2 rounded-full transition-all flex items-center justify-center"
                                 >
                                     <Send className="h-4 w-4" />
                                 </button>
