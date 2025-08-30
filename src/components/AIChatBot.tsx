@@ -31,9 +31,9 @@ const RenderMessageWithLinks = ({ text }: { text: string }) => {
                                 href={url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="mt-2 mb-2 flex items-center justify-center gap-2 text-center bg-[#1b82ae]/20 hover:bg-[#1b82ae]/40 text-[#1b82ae] font-semibold py-1.5 px-3 rounded-lg transition-all border border-[#1b82ae]/50"
+                                className="mt-2 mb-2 flex items-center justify-center gap-2 text-center bg-[#1b82ae]/30 hover:bg-[#1b82ae]/40 text-[#5ab7d6] font-bold py-1.5 px-3 rounded-lg transition-all border border-[#1b82ae]/50"
                             >
-                                <ExternalLink className="w-3 h-3" />
+                                <ExternalLink className="w-4 h-4" />
                                 عرض المنتج
                             </a>
                         </React.Fragment>
@@ -236,7 +236,7 @@ export default function AIChatBot() {
                                             {message.isUser ? <User className="h-3 w-3 text-white" /> : <Bot className="h-3 w-3 text-white" />}
                                         </div>
                                         <div className={`flex flex-col gap-1 ${message.isUser ? 'items-end' : 'items-start'}`}>
-                                            <div className={`rounded-2xl px-3 py-2 text-[13.6px] flex flex-col ${message.isUser ? 'bg-gradient-to-r from-blue-600 to-[#1b82ae] text-white' : 'bg-white/10 text-white border border-white/20'}`}>
+                                            <div className={`rounded-2xl px-3 py-2 text-[13.6px] flex flex-col ${message.isUser ? 'bg-[#1b82ae] text-white' : 'bg-white/10 text-white border border-white/20'}`}>
                                                 <RenderMessageWithLinks text={message.text} />
                                                 {!message.isUser && message.id !== '1' && (
                                                     <a href="https://wa.me/201027381559" target="_blank" rel="noopener noreferrer" className="mt-3 flex items-center justify-center gap-2 text-xs bg-[#1b82ae]/30 hover:bg-[#1b82ae]/50 text-white font-semibold py-1.5 px-3 rounded-lg transition-all border border-[#1b82ae]/50">
@@ -278,7 +278,7 @@ export default function AIChatBot() {
                                     onKeyPress={handleKeyPress}
                                     placeholder="اسأل عن أي نظام ذكي..."
                                     disabled={isLoading}
-                                    className="flex-1 bg-white/10 text-white placeholder-white/50 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1b82ae] border border-white/20 disabled:opacity-50"
+                                    className="flex-1 bg-white/10 text-white placeholder-white/50 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-white/50 border border-white/20 disabled:opacity-50"
                                 />
                                 <button
                                     onClick={handleSendMessage}
