@@ -31,7 +31,7 @@ const RenderMessageWithLinks = ({ text }: { text: string }) => {
                                 href={url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="mt-2 mb-2 flex items-center justify-center gap-2 text-center bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-300 font-semibold py-1.5 px-3 rounded-lg transition-all border border-emerald-500/50"
+                                className="mt-2 mb-2 flex items-center justify-center gap-2 text-center bg-emerald-500/20 hover:bg-emerald-400/40 text-emerald-300 font-semibold py-1.5 px-3 rounded-lg transition-all border border-emerald-500/50"
                             >
                                 <ExternalLink className="w-3 h-3" />
                                 عرض المنتج

@@ -15,7 +15,7 @@
 }
 
 html {
-  direction: rtl;
+  direction: ltr;
 }
 
 body {
@@ -85,8 +85,8 @@ body {
   position: absolute;
   width: 4px;
   height: 0%;
-  background: #007bff; /* Electric Blue */
-  box-shadow: 0 0 8px #007bff, 0 0 15px #007bff; /* Glow effect */
+  background: #1b82ae; /* New Color */
+  box-shadow: 0 0 8px #1b82ae, 0 0 15px #1b82ae; /* Glow effect */
   z-index: 999999;
 }
 

@@ -42,7 +42,7 @@ export default function Services() {
       const { data, error } = await supabase
         .from('services')
         .select(`
-          *,
+*,
           category:categories(*)
         `)
         .order('created_at', { ascending: false });
@@ -100,24 +100,11 @@ export default function Services() {
           }
         }}
       >
-        {/* Title */}
-        <motion.h2
-          className={`text-3xl font-bold text-center mb-12 text-[${lightGold}]`}
-          initial={{ opacity: 0, y: -32 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, ease: 'easeOut' }}
-        >
-           Our Products
-        </motion.h2>
-        {/* Separator */}
-        <motion.div
-          className={`w-full h-1 bg-[${lightGold}] mb-8`}
-          initial={{ opacity: 0, y: -24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.25, ease: 'easeOut', delay: 0.13 }}
-        />
 
-        {/* Categories */}
+
+
+
+
         <motion.div
           className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-22"
           initial="hidden"
@@ -168,22 +155,20 @@ export default function Services() {
 
         {/* Services */}
         <motion.div
-  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+  className='grid grid-cols-2 lg:grid-cols-3 gap-4'
   initial="hidden"
   animate="visible"
   variants={{
-    hidden: { opacity: 0, y: 50 }, // Starts invisible and 50px below its final position
+    hidden: { opacity: 0, y: 50 },
     visible: {
       opacity: 1,
-      y: 0, // Slides to its final position
+      y: 0,
       transition: {
-        staggerChildren: 0.1,
-        // You can also add a transition for the individual child here if needed
+        staggerChildren: 0.1
       }
     }
   }}
 >
-        >
           <AnimatePresence>
             {visibleServices.map((service, idx) => (
               <motion.div

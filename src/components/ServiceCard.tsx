@@ -75,7 +75,7 @@ Product link: ${productUrl}`;
         <div className="p-6">
           <h3 className="text-xl font-bold mb-2 text-secondary flex items-center gap-2">
             {title}
-            <Sparkles className={`h-4 w-4 text-[${lightGold}]`} />
+
           </h3>
           <p className="text-secondary/70 mb-4">
             {description.split(/\r?\n/)[0]}

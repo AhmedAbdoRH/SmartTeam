@@ -112,16 +112,7 @@ export default function Services() {
         }}
       >
         {/* Title */}
-        <motion.h2
-          className={`text-3xl font-bold text-center mb-12 text-[${lightGold}]`}
-           variants={{
-            hidden: { opacity: 0, y: -30 },
-            visible: { opacity: 1, y: 0 },
-          }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
-        >
-          Our Products
-        </motion.h2>
+
         {/* Special Categories */}
         <motion.div
           className="flex flex-wrap gap-4 justify-center mb-6"
@@ -135,7 +126,7 @@ export default function Services() {
             onClick={() => setSelectedCategory(null)}
             className={`p-4 rounded-lg transition-all duration-300 ${
               !selectedCategory
-                ? `bg-[var(--color-secondary,#34C759)] text-black font-bold shadow-md`
+                ? `relative py-2 px-5 bg-[#1b82ae] rounded-full flex items-center justify-center text-white gap-2.5 font-bold border-[3px] border-[#ffffff4d] outline-none overflow-hidden text-[15px] shadow-xl hover:scale-105 hover:border-[#fff9]`
                 : 'bg-black/20 text-white hover:bg-black/30 hover:shadow-md'
             }`}
             variants={{
@@ -143,7 +134,7 @@ export default function Services() {
               visible: { opacity: 1, y: 0 },
             }}
           >
-            All Products
+            Our Products
           </motion.button>
 
           {/* Featured Products Category */}
@@ -152,7 +143,7 @@ export default function Services() {
               onClick={() => setSelectedCategory('featured')}
               className={`p-4 rounded-xl transition-all duration-300 ${
                 selectedCategory === 'featured'
-                  ? `bg-[var(--color-secondary,#FFD700)] text-black font-bold shadow-md`
+                  ? `relative py-2 px-5 bg-[#1b82ae] rounded-full flex items-center justify-center text-white gap-2.5 font-bold border-[3px] border-[#ffffff4d] outline-none overflow-hidden text-[15px] shadow-xl hover:scale-105 hover:border-[#fff9]`
                   : 'bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 hover:shadow-md'
               }`}
               variants={{
@@ -172,7 +163,7 @@ export default function Services() {
               onClick={() => setSelectedCategory('best_sellers')}
               className={`p-4 rounded-xl transition-all duration-300 ${
                 selectedCategory === 'best_sellers'
-                  ? `bg-[var(--color-secondary,#FF6B6B)] text-black font-bold shadow-md`
+                  ? `relative py-2 px-5 bg-[#1b82ae] rounded-full flex items-center justify-center text-white gap-2.5 font-bold border-[3px] border-[#ffffff4d] outline-none overflow-hidden text-[15px] shadow-xl hover:scale-105 hover:border-[#fff9]`
                   : 'bg-red-500/20 text-red-300 hover:bg-red-500/30 hover:shadow-md'
               }`}
               variants={{
@@ -202,7 +193,7 @@ export default function Services() {
                 onClick={() => setSelectedCategory(category.id)}
                 className={`p-4 rounded-xl transition-all duration-300 ${
                   category.id === selectedCategory
-                    ? `bg-[var(--color-secondary,#34C759)] text-black font-bold shadow-md`
+                    ? `relative py-2 px-5 bg-[#1b82ae] rounded-full flex items-center justify-center text-white gap-2.5 font-bold border-[3px] border-[#ffffff4d] outline-none overflow-hidden text-[15px] shadow-xl hover:scale-105 hover:border-[#fff9]`
                     : 'bg-black/20 text-white hover:bg-black/30 hover:shadow-md'
                 }`}
                 variants={{
