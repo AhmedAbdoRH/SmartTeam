@@ -4,7 +4,14 @@ import { supabase } from '../lib/supabase';
 import type { Category, Service, Banner, StoreSettings, Testimonial } from '../types/database'; // Added Testimonial type
 import { Trash2, Edit, Plus, Save, X, Upload, ChevronDown, ChevronUp, Facebook, Instagram, Twitter, Palette, Store, Image, List, Package } from 'lucide-react';
 import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+
+import { Cloudinary } from '@cloudinary/url-gen';
+
+const cld = new Cloudinary({
+  cloud: {
+    cloudName: 'dpef19xpt'
+  }
+});
 
 const lightGold = '#00BFFF';
 const brownDark = '#3d2c1d';
@@ -14,6 +21,8 @@ const greenTabClass = `bg-[${successGreen}] text-white shadow-lg border-b-4 bord
 const greenTabInactiveClass = 'bg-black/20 text-white';
 
 const STORE_SETTINGS_ID = "00000000-0000-0000-0000-000000000001";
+
+
 
 interface AdminDashboardProps {
   onSettingsUpdate?: () => void;
@@ -40,7 +49,6 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [newTestimonial, setNewTestimonial] = useState({
     image_url: '',
-    // is_active: true, // You may not need this field if it's not in your form
   });
   const [editingTestimonial, setEditingTestimonial] = useState<string | null>(null);
   const [uploadingTestimonialImage, setUploadingTestimonialImage] = useState(false);
@@ -58,7 +66,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
     gallery: [] as string[],
     is_featured: false,
     is_best_seller: false,
-    remove_background: false,
+    remove_background: false, // سويتش إزالة الخلفية (للاستخدام في الواجهة فقط)
   });
   const [newBanner, setNewBanner] = useState<Partial<Banner>>({
     type: 'text',
@@ -353,20 +361,6 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
       if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage.from('services').getPublicUrl(filePath);
-
-      let processedFile = file; // Initialize with the original file
-
-      // If background removal is requested, process the image first
-      if (type === 'service' && newService.remove_background) {
-        try {
-          const blob = await removeBackground(file);
-          const newFileName = `removed_bg_${Date.now()}.png`;
-          processedFile = new File([blob], newFileName, { type: 'image/png' });
-        } catch (error) {
-          toast.error("فشل في إزالة الخلفية قبل الرفع.");
-          // Continue with original file if background removal fails
-        }
-      }
       if (type === 'logo') {
         setLogoUrl(publicUrl);
         setStoreSettings(prev => ({ ...prev, logo_url: publicUrl }));
@@ -443,6 +437,8 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
     });
   }
 
+
+
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, type: 'service' | 'banner' = 'service') => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -454,59 +450,81 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
     try {
       if (!file.type.startsWith('image/')) throw new Error('الرجاء اختيار ملف صورة صالح');
       
-      let fileToUpload = await resizeImageIfNeeded(file, 2); // This will be the file we eventually upload
+      // ضغط/تصغير قبل الرفع أو المعالجة
+      const processedInputFile = await resizeImageIfNeeded(file, 2);
 
-      // If background removal is requested (only for services)
+      let fileToUpload: File = processedInputFile;
+
       if (type === 'service' && newService.remove_background) {
-        console.log('newService.remove_background is true');
-        console.log('newService.remove_background is true');
         try {
-          const blob = await removeBackground(fileToUpload); // Use the resized file for background removal
-          console.log('Blob from removeBackground:', blob);
-          const newFileName = `removed_bg_${Date.now()}.png`;
-          fileToUpload = new File([blob], newFileName, { type: 'image/png' }); // Update fileToUpload with the background-removed image
-          setSuccessMsg("تمت إزالة الخلفية بنجاح!"); // Message for successful background removal
-        } catch (error) {
-          toast.error("فشل في إزالة الخلفية. سيتم رفع الصورة الأصلية.");
-          // Continue with original fileToUpload if background removal fails
+          const bgRemovedBlob = await removeBackgroundWithCloudinary(processedInputFile);
+          fileToUpload = new File([bgRemovedBlob], `removed_bg_${Date.now()}.png`, { type: 'image/png' });
+        } catch (cloudinaryErr) {
+          toast.warn('تعذر إزالة الخلفية باستخدام Cloudinary. سيتم استخدام الصورة الأصلية.');
         }
       }
 
-      const fileExt = fileToUpload.name.split('.').pop();
-      const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `${fileName}`;
+      // دالة Cloudinary لإزالة الخلفية وإرجاع Blob للصورة بدون خلفية
+      async function removeBackgroundWithCloudinary(file: File): Promise<Blob> {
+        try {
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('upload_preset', 'ml_default');
+          formData.append('api_key', '243366735459389');
+          formData.append('api_secret', 'C26xh9tIq4CsWY1TA1jwi8AfpsQ');
 
-      // Upload the final processed file (either original resized or background-removed)
-      const { error: uploadError } = await supabase.storage.from('services').upload(filePath, fileToUpload);
+          const response = await fetch(`https://api.cloudinary.com/v1_1/dpef19xpt/image/upload`, {
+            method: 'POST',
+            body: formData
+          });
+
+          if (!response.ok) {
+            let errText = '';
+            try {
+              errText = await response.text();
+            } catch {
+              errText = response.statusText;
+            }
+            throw new Error(errText || `HTTP ${response.status}`);
+          }
+
+          const data = await response.json();
+          const imageUrl = data.secure_url;
+
+          // Fetch the image with background removed using Cloudinary's transformation
+          const transformedImageUrl = imageUrl.replace(/upload\//, 'upload/e_background_removal/');
+          const transformedResponse = await fetch(transformedImageUrl);
+          const blob = await transformedResponse.blob();
+          return blob; // صورة PNG بخلفية شفافة
+        } catch (error: any) {
+          toast.error(`فشل في إزالة الخلفية باستخدام Cloudinary: ${error?.message || 'خطأ غير معروف'}`);
+          throw error;
+        }
+      }
+
+      // رفع إلى تخزين Supabase
+      const fileExt = fileToUpload.name.split('.').pop();
+      const supaFileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const supaFilePath = `${supaFileName}`;
+
+      const { error: uploadError } = await supabase.storage.from('services').upload(supaFilePath, fileToUpload, { upsert: true });
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage.from('services').getPublicUrl(filePath);
-      
-      setNewState(prev => ({ ...prev, image_url: publicUrl }));
-      setSuccessMsg("تم رفع الصورة بنجاح!");
+      const { data: { publicUrl } } = supabase.storage.from('services').getPublicUrl(supaFilePath);
+
+      setNewState((prev: any) => ({ ...prev, image_url: publicUrl }));
+
+      if (type === 'service' && newService.remove_background) {
+        setSuccessMsg("تمت إزالة الخلفية ورفع الصورة بنجاح!");
+      } else {
+        setSuccessMsg("تم رفع الصورة بنجاح!");
+      }
 
     } catch (err: any) {
       setError(`خطأ في رفع الصورة: ${err.message}`);
-      setNewState(prev => ({ ...prev, image_url: '' }));
+      setNewState((prev: any) => ({ ...prev, image_url: '' }));
     } finally {
       uploadingState(false);
-    }
-  };
-
-  const handleRemoveBackground = async (imageFile: File) => {
-    try {
-      const blob = await removeBackground(imageFile);
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const base64data = reader.result?.toString().split(',')[1];
-          resolve(base64data || null);
-        };
-        reader.readAsDataURL(blob);
-      });
-    } catch (error: any) {
-      toast.error(`فشل في إزالة الخلفية: ${error.message}`);
-      return null;
     }
   };
 
@@ -609,15 +627,20 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
     }
     setIsLoading(true);
     try {
+        // لا ترسل remove_background لقاعدة البيانات
         const serviceToAdd = {
-            ...newService,
-            category_id: selectedCategory,
+            title: newService.title,
+            description: newService.description || '',
+            image_url: newService.image_url || '',
+            price: newService.price,
             sale_price: newService.sale_price || null,
+            category_id: selectedCategory,
+            gallery: Array.isArray(newService.gallery) ? newService.gallery : [],
             is_featured: newService.is_featured || false,
             is_best_seller: newService.is_best_seller || false
         };
 
-        const { error } = await supabase.from('services').insert([serviceToAdd]);
+        const { error } = await supabase.from('services').insert([serviceToAdd as any]);
         if (error) throw error;
 
         // Reset form
@@ -684,7 +707,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
       };
       const { error } = await supabase
         .from('services')
-        .update(serviceToUpdate)
+        .update(serviceToUpdate as any)
         .eq('id', editingService);
       if (error) throw error;
 
@@ -748,7 +771,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
         is_active: true
       };
 
-      const { error } = await supabase.from('banners').insert([bannerData]);
+      const { error } = await supabase.from('banners').insert([bannerData as any]);
       if (error) throw error;
 
       setNewBanner({
@@ -804,7 +827,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
 
       const { error } = await supabase
         .from('banners')
-        .update(bannerData)
+        .update(bannerData as any)
         .eq('id', editingBanner);
       if (error) throw error;
 
@@ -1023,7 +1046,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
             </button>
             <button
               onClick={() => setActiveTab('testimonials')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all duration-300 transform
+              className={`w-full flex.items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all.duration-300 transform
                 ${activeTab === 'testimonials'
                   ? 'bg-blue-500 text-white shadow-lg -translate-y-1'
                   : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'}`}
@@ -1033,7 +1056,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
             </button>
             <button
               onClick={() => setActiveTab('store')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all duration-300 transform
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all.duration-300 transform
                 ${activeTab === 'store'
                   ? 'bg-blue-500 text-white shadow-lg -translate-y-1'
                   : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'}`}
@@ -1188,7 +1211,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-1">رابط تويتر</label>
+                                    <label className="block text.sm font-medium text-gray-300 mb-1">رابط تويتر</label>
                                     <input
                                     type="url"
                                     value={storeSettings.twitter_url || ''}
@@ -1353,6 +1376,8 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                                 <span className="text-xs text-gray-400 mt-1">المقاس الموصى به: أبعاد أفقية (5:4)</span>
                             </label>
                             <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" id="image-upload" disabled={uploadingImage || isLoading}/>
+                            
+
                         </div>
 
                         {newService.image_url && !uploadingImage && (
@@ -1374,7 +1399,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                           <input type="text" placeholder="سعر التخفيض (اختياري)" value={newService.sale_price} onChange={(e) => setNewService({ ...newService, sale_price: e.target.value })} className="w-full p-3 rounded text-white bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" disabled={isLoading}/>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                             <div className="flex items-center gap-2 p-2 bg-gray-700/50 rounded-md">
                                 <input type="checkbox" id="is_featured" checked={newService.is_featured || false} onChange={(e) => setNewService({ ...newService, is_featured: e.target.checked })} className="h-4 w-4 accent-blue-500"/>
                                 <label htmlFor="is_featured" className="text-white">أحدث العروض</label>
@@ -1383,10 +1408,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                                 <input type="checkbox" id="is_best_seller" checked={newService.is_best_seller || false} onChange={(e) => setNewService({ ...newService, is_best_seller: e.target.checked })} className="h-4 w-4 accent-blue-500"/>
                                 <label htmlFor="is_best_seller" className="text-white">الأكثر مبيعًا</label>
                             </div>
-                            <div className="flex items-center gap-2 p-2 bg-gray-700/50 rounded-md">
-                                <input type="checkbox" id="remove_background" checked={newService.remove_background || false} onChange={(e) => setNewService({ ...newService, remove_background: e.target.checked })} className="h-4 w-4 accent-blue-500"/>
-                                <label htmlFor="remove_background" className="text-white">إزالة الخلفية (AI)</label>
-                            </div>
+                            {/* تمت إزالة خيار إزالة الخلفية من هنا ونقله تحت خانة التحميل */}
                         </div>
 
                         <div>
@@ -1459,7 +1481,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                             {editingCategory ? <><Save size={20} /> حفظ التعديلات</> : <><Plus size={20} /> إضافة قسم</>}
                           </button>
                           {editingCategory && (
-                            <button type="button" onClick={handleCancelEditCategory} className="bg-gray-600 text-white px-4 py-2.5 rounded-md hover:bg-gray-700 flex items-center justify-center gap-2 font-bold" disabled={isLoading}>
+                            <button type="button" onClick={handleCancelEditCategory} className="bg-gray-600 text.white px-4 py-2.5 rounded-md hover:bg-gray-700 flex items-center justify-center gap-2 font-bold" disabled={isLoading}>
                               <X size={20} /> إلغاء
                             </button>
                           )}
