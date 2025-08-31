@@ -126,7 +126,7 @@ export default function Services() {
             onClick={() => setSelectedCategory(null)}
             className={`p-4 rounded-lg transition-all duration-300 ${
               !selectedCategory
-                ? `relative py-2 px-5 bg-[#1b82ae] rounded-full flex items-center justify-center text-white gap-2.5 font-bold border-[3px] border-[#ffffff4d] outline-none overflow-hidden text-[15px] shadow-xl hover:scale-105 hover:border-[#fff9]`
+                ? `relative py-2 px-5 bg-[#00BFFF] rounded-full flex items-center justify-center text-white gap-2.5 font-bold border-[3px] border-[#00BFFF4d] outline-none overflow-hidden text-[15px] shadow-xl hover:scale-105 hover:border-[#fff9]`
                 : 'bg-black/20 text-white hover:bg-black/30 hover:shadow-md'
             }`}
             variants={{
