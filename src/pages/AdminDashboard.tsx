@@ -1,17 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import type { Category, Service, Banner, StoreSettings, Testimonial } from '../types/database'; // Added Testimonial type
+import type { Category, Service, Banner, StoreSettings, Testimonial, Subcategory } from '../types/database'; // Added Subcategory type
 import { Trash2, Edit, Plus, Save, X, Upload, ChevronDown, ChevronUp, Facebook, Instagram, Twitter, Palette, Store, Image, List, Package } from 'lucide-react';
 import { ToastContainer, toast } from 'react-toastify';
-
-import { Cloudinary } from '@cloudinary/url-gen';
-
-const cld = new Cloudinary({
-  cloud: {
-    cloudName: 'dpef19xpt'
-  }
-});
+import 'react-toastify/dist/ReactToastify.css';
 
 const lightGold = '#00BFFF';
 const brownDark = '#3d2c1d';
@@ -22,8 +15,6 @@ const greenTabInactiveClass = 'bg-black/20 text-white';
 
 const STORE_SETTINGS_ID = "00000000-0000-0000-0000-000000000001";
 
-
-
 interface AdminDashboardProps {
   onSettingsUpdate?: () => void;
 }
@@ -31,31 +22,39 @@ interface AdminDashboardProps {
 export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [services, setServices] = useState<Service[]>([]);
+  const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [banners, setBanners] = useState<Banner[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [removingBackground, setRemovingBackground] = useState(false);
   const [uploadingBannerImage, setUploadingBannerImage] = useState(false);
   const [editingService, setEditingService] = useState<string | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [editingCategory, setEditingCategory] = useState<string | null>(null);
   const [editingBanner, setEditingBanner] = useState<string | null>(null);
-  const [deleteModal, setDeleteModal] = useState<{ id: string; type: 'category' | 'service' | 'banner' } | null>(null);
+  const [deleteModal, setDeleteModal] = useState<{ id: string; type: 'category' | 'service' | 'banner' | 'subcategory' } | null>(null);
   const [activeTab, setActiveTab] = useState<'products' | 'banners' | 'testimonials' | 'store'>('products');
+
+  // Remove BG switch state and original image backup (session only)
+  const [removeBgSwitch, setRemoveBgSwitch] = useState(false);
+  const [originalServiceImageUrl, setOriginalServiceImageUrl] = useState<string | null>(null);
 
   // Testimonials state
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [newTestimonial, setNewTestimonial] = useState({
     image_url: '',
+    // is_active: true, // You may not need this field if it's not in your form
   });
   const [editingTestimonial, setEditingTestimonial] = useState<string | null>(null);
   const [uploadingTestimonialImage, setUploadingTestimonialImage] = useState(false);
-  const [productsSubTab, setProductsSubTab] = useState<'services' | 'categories'>('services');
+  const [productsSubTab, setProductsSubTab] = useState<'services' | 'categories' | 'subcategories'>('services');
   const [bannersSubTab, setBannersSubTab] = useState<'text' | 'image'>('image');
 
   const [newCategory, setNewCategory] = useState({ name: '', description: '' });
+  const [newSubcategory, setNewSubcategory] = useState({ category_id: '', name_ar: '', description_ar: '' });
   const [newService, setNewService] = useState({
     title: '',
     description: '',
@@ -66,8 +65,9 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
     gallery: [] as string[],
     is_featured: false,
     is_best_seller: false,
-    remove_background: false, // سويتش إزالة الخلفية (للاستخدام في الواجهة فقط)
   });
+  const [editingSubcategory, setEditingSubcategory] = useState<string | null>(null);
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string>('');
   const [newBanner, setNewBanner] = useState<Partial<Banner>>({
     type: 'text',
     title: '',
@@ -116,6 +116,220 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
       setTestimonials([]);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Remove background from an existing image URL (uses same algorithm)
+  async function removeBackgroundFromImageUrl(url: string): Promise<File> {
+    const img = new window.Image();
+    img.crossOrigin = 'anonymous';
+    await new Promise((resolve, reject) => {
+      img.onload = () => resolve(null);
+      img.onerror = reject;
+      img.src = url;
+    });
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('تعذر إنشاء سياق الرسم');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    ctx.drawImage(img, 0, 0);
+
+    const { data, width, height } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+    const dist = (r1:number,g1:number,b1:number,r2:number,g2:number,b2:number) => {
+      const dr=r1-r2, dg=g1-g2, db=b1-b2;
+      return Math.sqrt(dr*dr+dg*dg+db*db);
+    };
+
+    function avgCorner(x0:number, y0:number, w:number, h:number){
+      let sr=0, sg=0, sb=0, c=0;
+      for(let y=y0; y<y0+h; y++){
+        for(let x=x0; x<x0+w; x++){
+          const idx = (y*width + x) * 4;
+          sr += data[idx]; sg += data[idx+1]; sb += data[idx+2]; c++;
+        }
+      }
+      return [sr/c, sg/c, sb/c] as [number,number,number];
+    }
+
+    const sample = 10;
+    const c1 = avgCorner(0, 0, sample, sample);
+    const c2 = avgCorner(width-sample, 0, sample, sample);
+    const c3 = avgCorner(0, height-sample, sample, sample);
+    const c4 = avgCorner(width-sample, height-sample, sample, sample);
+    const bg = [
+      (c1[0]+c2[0]+c3[0]+c4[0])/4,
+      (c1[1]+c2[1]+c3[1]+c4[1])/4,
+      (c1[2]+c2[2]+c3[2]+c4[2])/4,
+    ] as [number,number,number];
+
+    const threshold = 60;
+    const feather = 20;
+
+    const imgData = ctx.getImageData(0, 0, width, height);
+    const d = imgData.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const r=d[i], g=d[i+1], b=d[i+2];
+      const distance = dist(r,g,b,bg[0],bg[1],bg[2]);
+      if (distance <= threshold) {
+        d[i+3] = 0;
+      } else if (distance <= threshold + feather) {
+        const t = (distance - threshold) / feather;
+        d[i+3] = Math.min(255, Math.max(0, Math.round(255 * t)));
+      }
+    }
+    ctx.putImageData(imgData, 0, 0);
+
+    const blob: Blob = await new Promise((resolve, reject) => {
+      canvas.toBlob((b) => b ? resolve(b) : reject(new Error('فشل إنشاء الصورة')), 'image/png');
+    });
+    return new File([blob], `${Date.now()}_bg_removed.png`, { type: 'image/png' });
+  }
+
+  const handleToggleRemoveBgSwitch = async (checked: boolean) => {
+    if (!newService.image_url) return;
+    if (checked) {
+      setRemovingBackground(true);
+      try {
+        if (!originalServiceImageUrl) setOriginalServiceImageUrl(newService.image_url);
+        const processed = await removeBackgroundFromImageUrl(newService.image_url);
+        const fileExt = processed.name.split('.').pop();
+        const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from('services')
+          .upload(fileName, processed, { upsert: true });
+        if (uploadError) throw uploadError;
+        const { data: { publicUrl } } = supabase.storage.from('services').getPublicUrl(fileName);
+        setNewService(prev => ({ ...prev, image_url: publicUrl }));
+        setRemoveBgSwitch(true);
+        setSuccessMsg('تم تحويل الصورة إلى خلفية شفافة');
+      } catch (err: any) {
+        setRemoveBgSwitch(false);
+        setError(`تعذر إزالة الخلفية: ${err.message}`);
+      } finally {
+        setRemovingBackground(false);
+      }
+    } else {
+      // Revert to original in-session
+      if (originalServiceImageUrl) {
+        setNewService(prev => ({ ...prev, image_url: originalServiceImageUrl! }));
+      }
+      setRemoveBgSwitch(false);
+    }
+  };
+
+  // إزالة الخلفية داخل المتصفح باستخدام كانفس عبر تقدير لون الخلفية من زوايا الصورة
+  async function removeBackgroundFromFile(file: File): Promise<File> {
+    // حمل الصورة
+    const img = new window.Image();
+    const dataUrl: string = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+    await new Promise((resolve, reject) => {
+      img.onload = () => resolve(null);
+      img.onerror = reject;
+      img.src = dataUrl;
+    });
+
+    // ارسم على كانفس
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('تعذر إنشاء سياق الرسم');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    ctx.drawImage(img, 0, 0);
+
+    const { data, width, height } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+    // دالة مسافة اللون
+    const dist = (r1:number,g1:number,b1:number,r2:number,g2:number,b2:number) => {
+      const dr=r1-r2, dg=g1-g2, db=b1-b2;
+      return Math.sqrt(dr*dr+dg*dg+db*db);
+    };
+
+    // احسب متوسط لون الزوايا (منطقة 10x10 من كل زاوية)
+    function avgCorner(x0:number, y0:number, w:number, h:number){
+      let sr=0, sg=0, sb=0, c=0;
+      for(let y=y0; y<y0+h; y++){
+        for(let x=x0; x<x0+w; x++){
+          const idx = (y*width + x) * 4;
+          sr += data[idx]; sg += data[idx+1]; sb += data[idx+2]; c++;
+        }
+      }
+      return [sr/c, sg/c, sb/c] as [number,number,number];
+    }
+
+    const sample = 10;
+    const c1 = avgCorner(0, 0, sample, sample);
+    const c2 = avgCorner(width-sample, 0, sample, sample);
+    const c3 = avgCorner(0, height-sample, sample, sample);
+    const c4 = avgCorner(width-sample, height-sample, sample, sample);
+    const bg = [
+      (c1[0]+c2[0]+c3[0]+c4[0])/4,
+      (c1[1]+c2[1]+c3[1]+c4[1])/4,
+      (c1[2]+c2[2]+c3[2]+c4[2])/4,
+    ] as [number,number,number];
+
+    // عتبات الإزالة والتدرج (feather)
+    const threshold = 60; // كلما زادت كان الإزالة أشد
+    const feather = 20;   // نطاق تدرّج الألفا حول العتبة
+
+    // عدّل ألفا البكسلات
+    const imgData = ctx.getImageData(0, 0, width, height);
+    const d = imgData.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const r=d[i], g=d[i+1], b=d[i+2];
+      const distance = dist(r,g,b,bg[0],bg[1],bg[2]);
+      if (distance <= threshold) {
+        d[i+3] = 0; // شفاف بالكامل
+      } else if (distance <= threshold + feather) {
+        const t = (distance - threshold) / feather; // 0..1
+        d[i+3] = Math.min(255, Math.max(0, Math.round(255 * t)));
+      }
+    }
+    ctx.putImageData(imgData, 0, 0);
+
+    // حوّل إلى PNG مع ألفا
+    const blob: Blob = await new Promise((resolve, reject) => {
+      canvas.toBlob((b) => b ? resolve(b) : reject(new Error('فشل إنشاء الصورة')), 'image/png');
+    });
+    return new File([blob], `${Date.now()}_bg_removed.png`, { type: 'image/png' });
+  }
+
+  // رافع صورة مع إزالة الخلفية ورفعها إلى Supabase
+  const handleImageUploadRemoveBg = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setRemovingBackground(true);
+    try {
+      if (!file.type.startsWith('image/')) throw new Error('الرجاء اختيار ملف صورة صالح');
+
+      // قلل الحجم أولاً إذا لزم
+      const resized = await resizeImageIfNeeded(file, 2);
+      // أزل الخلفية
+      const processed = await removeBackgroundFromFile(resized);
+
+      const fileExt = processed.name.split('.').pop();
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const { error: uploadError } = await supabase.storage
+        .from('services')
+        .upload(fileName, processed, { upsert: true });
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage.from('services').getPublicUrl(fileName);
+      setNewService(prev => ({ ...prev, image_url: publicUrl }));
+      setSuccessMsg('تمت إزالة الخلفية ورفع الصورة بنجاح!');
+    } catch (err: any) {
+      setError(`تعذر إزالة الخلفية: ${err.message}`);
+    } finally {
+      setRemovingBackground(false);
+      // امسح قيمة المدخل حتى يمكن اختيار نفس الملف لاحقاً
+      event.target.value = '';
     }
   };
 
@@ -178,6 +392,13 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
       if (servicesError) throw servicesError;
       setServices(servicesData || []);
 
+      const { data: subcatsData, error: subcatsError } = await supabase
+        .from('subcategories')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (subcatsError) throw subcatsError;
+      setSubcategories(subcatsData || []);
+
       const { data: bannersData, error: bannersError } = await supabase
         .from('banners')
         .select('*')
@@ -188,6 +409,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
       setError(`خطأ في جلب البيانات: ${err.message}`);
       setCategories([]);
       setServices([]);
+      setSubcategories([]);
       setBanners([]);
     } finally {
       setIsLoading(false);
@@ -361,6 +583,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
       if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage.from('services').getPublicUrl(filePath);
+
       if (type === 'logo') {
         setLogoUrl(publicUrl);
         setStoreSettings(prev => ({ ...prev, logo_url: publicUrl }));
@@ -437,8 +660,6 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
     });
   }
 
-
-
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, type: 'service' | 'banner' = 'service') => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -450,83 +671,30 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
     try {
       if (!file.type.startsWith('image/')) throw new Error('الرجاء اختيار ملف صورة صالح');
       
-      // ضغط/تصغير قبل الرفع أو المعالجة
-      const processedInputFile = await resizeImageIfNeeded(file, 2);
+      let fileToUpload = await resizeImageIfNeeded(file, 2); // This will be the file we eventually upload
 
-      let fileToUpload: File = processedInputFile;
-
-      if (type === 'service' && newService.remove_background) {
-        try {
-          const bgRemovedBlob = await removeBackgroundWithCloudinary(processedInputFile);
-          fileToUpload = new File([bgRemovedBlob], `removed_bg_${Date.now()}.png`, { type: 'image/png' });
-        } catch (cloudinaryErr) {
-          toast.warn('تعذر إزالة الخلفية باستخدام Cloudinary. سيتم استخدام الصورة الأصلية.');
-        }
-      }
-
-      // دالة Cloudinary لإزالة الخلفية وإرجاع Blob للصورة بدون خلفية
-      async function removeBackgroundWithCloudinary(file: File): Promise<Blob> {
-        try {
-          const formData = new FormData();
-          formData.append('file', file);
-          formData.append('upload_preset', 'ml_default');
-          formData.append('api_key', '243366735459389');
-          formData.append('api_secret', 'C26xh9tIq4CsWY1TA1jwi8AfpsQ');
-
-          const response = await fetch(`https://api.cloudinary.com/v1_1/dpef19xpt/image/upload`, {
-            method: 'POST',
-            body: formData
-          });
-
-          if (!response.ok) {
-            let errText = '';
-            try {
-              errText = await response.text();
-            } catch {
-              errText = response.statusText;
-            }
-            throw new Error(errText || `HTTP ${response.status}`);
-          }
-
-          const data = await response.json();
-          const imageUrl = data.secure_url;
-
-          // Fetch the image with background removed using Cloudinary's transformation
-          const transformedImageUrl = imageUrl.replace(/upload\//, 'upload/e_background_removal/');
-          const transformedResponse = await fetch(transformedImageUrl);
-          const blob = await transformedResponse.blob();
-          return blob; // صورة PNG بخلفية شفافة
-        } catch (error: any) {
-          toast.error(`فشل في إزالة الخلفية باستخدام Cloudinary: ${error?.message || 'خطأ غير معروف'}`);
-          throw error;
-        }
-      }
-
-      // رفع إلى تخزين Supabase
       const fileExt = fileToUpload.name.split('.').pop();
-      const supaFileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const supaFilePath = `${supaFileName}`;
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `${fileName}`;
 
-      const { error: uploadError } = await supabase.storage.from('services').upload(supaFilePath, fileToUpload, { upsert: true });
+      // Upload the final processed file (either original resized or background-removed)
+      const { error: uploadError } = await supabase.storage.from('services').upload(filePath, fileToUpload);
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage.from('services').getPublicUrl(supaFilePath);
-
-      setNewState((prev: any) => ({ ...prev, image_url: publicUrl }));
-
-      if (type === 'service' && newService.remove_background) {
-        setSuccessMsg("تمت إزالة الخلفية ورفع الصورة بنجاح!");
-      } else {
-        setSuccessMsg("تم رفع الصورة بنجاح!");
-      }
+      const { data: { publicUrl } } = supabase.storage.from('services').getPublicUrl(filePath);
+      
+      setNewState(prev => ({ ...prev, image_url: publicUrl }));
+      setSuccessMsg("تم رفع الصورة بنجاح!");
 
     } catch (err: any) {
       setError(`خطأ في رفع الصورة: ${err.message}`);
-      setNewState((prev: any) => ({ ...prev, image_url: '' }));
+      setNewState(prev => ({ ...prev, image_url: '' }));
     } finally {
       uploadingState(false);
     }
   };
+
+  
 
   const handleAddCategory = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -603,6 +771,10 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
       } else if (deleteModal.type === 'banner') {
         await supabase.from('banners').delete().eq('id', deleteModal.id);
         message = "تم حذف البانر بنجاح.";
+      } else if (deleteModal.type === 'subcategory') {
+        await supabase.from('services').update({ subcategory_id: null }).eq('subcategory_id', deleteModal.id);
+        await supabase.from('subcategories').delete().eq('id', deleteModal.id);
+        message = "تم حذف التصنيف الفرعي بنجاح.";
       }
 
       setDeleteModal(null);
@@ -618,6 +790,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
   const handleDeleteCategory = (id: string) => setDeleteModal({ id, type: 'category' });
   const handleDeleteService = (id: string) => setDeleteModal({ id, type: 'service' });
   const handleDeleteBanner = (id: string) => setDeleteModal({ id, type: 'banner' });
+  const handleDeleteSubcategory = (id: string) => setDeleteModal({ id, type: 'subcategory' });
   
   const handleAddService = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -627,20 +800,16 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
     }
     setIsLoading(true);
     try {
-        // لا ترسل remove_background لقاعدة البيانات
         const serviceToAdd = {
-            title: newService.title,
-            description: newService.description || '',
-            image_url: newService.image_url || '',
-            price: newService.price,
-            sale_price: newService.sale_price || null,
+            ...newService,
             category_id: selectedCategory,
-            gallery: Array.isArray(newService.gallery) ? newService.gallery : [],
+            subcategory_id: selectedSubcategory || null,
+            sale_price: newService.sale_price || null,
             is_featured: newService.is_featured || false,
             is_best_seller: newService.is_best_seller || false
         };
 
-        const { error } = await supabase.from('services').insert([serviceToAdd as any]);
+        const { error } = await supabase.from('services').insert([serviceToAdd]);
         if (error) throw error;
 
         // Reset form
@@ -654,9 +823,9 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
             gallery: [],
             is_featured: false,
             is_best_seller: false,
-            remove_background: false,
         });
         setSelectedCategory('');
+        setSelectedSubcategory('');
         await fetchData();
         setSuccessMsg('تمت إضافة المنتج بنجاح');
     } catch (err: any) {
@@ -679,9 +848,11 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
       gallery: Array.isArray(service.gallery) ? service.gallery : [],
       is_featured: service.is_featured || false,
       is_best_seller: service.is_best_seller || false,
-      remove_background: false, // Reset this on edit
     });
+
     setSelectedCategory(service.category_id || '');
+    // @ts-ignore - subcategory_id may exist in DB even if not in Service type
+    setSelectedSubcategory((service as any).subcategory_id || '');
     const formElement = document.getElementById('service-form');
     formElement?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
@@ -701,13 +872,14 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
         price: newService.price,
         sale_price: newService.sale_price || null,
         category_id: selectedCategory,
+        subcategory_id: selectedSubcategory || null,
         gallery: Array.isArray(newService.gallery) ? newService.gallery : [],
         is_featured: newService.is_featured || false,
         is_best_seller: newService.is_best_seller || false
       };
       const { error } = await supabase
         .from('services')
-        .update(serviceToUpdate as any)
+        .update(serviceToUpdate)
         .eq('id', editingService);
       if (error) throw error;
 
@@ -720,10 +892,10 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
         category_id: '', 
         gallery: [],
         is_featured: false,
-        is_best_seller: false,
-        remove_background: false
+        is_best_seller: false
       });
       setSelectedCategory('');
+      setSelectedSubcategory('');
       setEditingService(null);
       await fetchData();
       setSuccessMsg("تم تحديث المنتج بنجاح!");
@@ -745,10 +917,79 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
       category_id: '', 
       gallery: [],
       is_featured: false,
-      is_best_seller: false,
-      remove_background: false
+      is_best_seller: false
     });
     setSelectedCategory('');
+    setSelectedSubcategory('');
+  };
+
+  // Subcategories CRUD
+  const handleAddSubcategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newSubcategory.category_id || !newSubcategory.name_ar.trim()) {
+      setError('يجب اختيار قسم وكتابة اسم للتصنيف الفرعي');
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.from('subcategories').insert([{
+        category_id: newSubcategory.category_id,
+        name_ar: newSubcategory.name_ar,
+        description_ar: newSubcategory.description_ar || null,
+      }]);
+      if (error) throw error;
+      setNewSubcategory({ category_id: '', name_ar: '', description_ar: '' });
+      await fetchData();
+      setSuccessMsg('تم إضافة التصنيف الفرعي بنجاح');
+    } catch (err: any) {
+      setError(`خطأ في إضافة التصنيف الفرعي: ${err.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEditSubcategory = (subcat: Subcategory) => {
+    setEditingSubcategory(subcat.id);
+    setNewSubcategory({
+      category_id: subcat.category_id,
+      name_ar: (subcat as any).name_ar || (subcat as any).name || '',
+      description_ar: (subcat as any).description_ar || (subcat as any).description || '',
+    });
+    const formElement = document.getElementById('subcategory-form');
+    formElement?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const handleUpdateSubcategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingSubcategory || !newSubcategory.category_id || !newSubcategory.name_ar.trim()) {
+      setError('يجب اختيار قسم وكتابة اسم للتصنيف الفرعي');
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const { error } = await supabase
+        .from('subcategories')
+        .update({
+          category_id: newSubcategory.category_id,
+          name_ar: newSubcategory.name_ar,
+          description_ar: newSubcategory.description_ar || null,
+        })
+        .eq('id', editingSubcategory);
+      if (error) throw error;
+      setNewSubcategory({ category_id: '', name_ar: '', description_ar: '' });
+      setEditingSubcategory(null);
+      await fetchData();
+      setSuccessMsg('تم تحديث التصنيف الفرعي بنجاح');
+    } catch (err: any) {
+      setError(`خطأ في تحديث التصنيف الفرعي: ${err.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCancelEditSubcategory = () => {
+    setEditingSubcategory(null);
+    setNewSubcategory({ category_id: '', name_ar: '', description_ar: '' });
   };
 
   const handleAddBanner = async (e: React.FormEvent) => {
@@ -771,7 +1012,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
         is_active: true
       };
 
-      const { error } = await supabase.from('banners').insert([bannerData as any]);
+      const { error } = await supabase.from('banners').insert([bannerData]);
       if (error) throw error;
 
       setNewBanner({
@@ -827,7 +1068,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
 
       const { error } = await supabase
         .from('banners')
-        .update(bannerData as any)
+        .update(bannerData)
         .eq('id', editingBanner);
       if (error) throw error;
 
@@ -1046,7 +1287,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
             </button>
             <button
               onClick={() => setActiveTab('testimonials')}
-              className={`w-full flex.items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all.duration-300 transform
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all duration-300 transform
                 ${activeTab === 'testimonials'
                   ? 'bg-blue-500 text-white shadow-lg -translate-y-1'
                   : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'}`}
@@ -1056,7 +1297,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
             </button>
             <button
               onClick={() => setActiveTab('store')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all.duration-300 transform
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all duration-300 transform
                 ${activeTab === 'store'
                   ? 'bg-blue-500 text-white shadow-lg -translate-y-1'
                   : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'}`}
@@ -1211,7 +1452,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text.sm font-medium text-gray-300 mb-1">رابط تويتر</label>
+                                    <label className="block text-sm font-medium text-gray-300 mb-1">رابط تويتر</label>
                                     <input
                                     type="url"
                                     value={storeSettings.twitter_url || ''}
@@ -1361,6 +1602,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                   <div className="flex border-b border-gray-700 mb-6">
                     <button onClick={() => setProductsSubTab('services')} className={`flex-1 py-2 font-bold transition-colors rounded-t-md ${productsSubTab === 'services' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:bg-gray-700'}`}>المنتجات</button>
                     <button onClick={() => setProductsSubTab('categories')} className={`flex-1 py-2 font-bold transition-colors rounded-t-md ${productsSubTab === 'categories' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:bg-gray-700'}`}>الأقسام</button>
+                    <button onClick={() => setProductsSubTab('subcategories')} className={`flex-1 py-2 font-bold transition-colors rounded-t-md ${productsSubTab === 'subcategories' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:bg-gray-700'}`}>التصنيفات الفرعية</button>
                   </div>
 
                   {productsSubTab === 'services' && (
@@ -1376,22 +1618,49 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                                 <span className="text-xs text-gray-400 mt-1">المقاس الموصى به: أبعاد أفقية (5:4)</span>
                             </label>
                             <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" id="image-upload" disabled={uploadingImage || isLoading}/>
-                            
-
                         </div>
 
+                        {/* مفتاح تحويل الصورة إلى خلفية شفافة أسفل المعاينة */}
+
                         {newService.image_url && !uploadingImage && (
-                          <div className="mt-3 flex items-center justify-center gap-4 bg-gray-900/50 p-2 rounded border border-gray-700">
-                            <img src={newService.image_url} alt="معاينة" className="w-16 h-16 object-cover rounded border border-gray-600" />
-                            <span className="text-gray-400 text-xs">الصورة الحالية/الجديدة</span>
-                            <button type="button" onClick={() => setNewService({...newService, image_url: ''})} className="text-red-500 hover:text-red-400 p-1" title="إزالة الصورة"><X size={16}/></button>
-                          </div>
+                          <>
+                            <div className="mt-3 flex items-center justify-center gap-4 bg-gray-900/50 p-2 rounded border border-gray-700">
+                              <img src={newService.image_url} alt="معاينة" className="w-16 h-16 object-cover rounded border border-gray-600" />
+                              <span className="text-gray-400 text-xs">الصورة الحالية/الجديدة</span>
+                              <button type="button" onClick={() => { setNewService({...newService, image_url: ''}); setRemoveBgSwitch(false); setOriginalServiceImageUrl(null); }} className="text-red-500 hover:text-red-400 p-1" title="إزالة الصورة"><X size={16}/></button>
+                            </div>
+                            <div className="mt-2 flex items-center justify-center">
+                              <label className="flex items-center gap-2 text-xs text-gray-300 select-none">
+                                {/* صندوق تحديد بسيط على يمين النص مع RTL */}
+                                <input
+                                  type="checkbox"
+                                  className="h-4 w-4 accent-emerald-500 rounded border border-gray-500 bg-gray-700 focus:ring-0"
+                                  checked={removeBgSwitch}
+                                  onChange={(e) => handleToggleRemoveBgSwitch(e.target.checked)}
+                                  disabled={removingBackground || isLoading}
+                                />
+                                <span className="leading-none">بدون خلفية</span>
+                                {removingBackground && <span className="text-[10px] text-gray-400">جاري المعالجة...</span>}
+                              </label>
+                            </div>
+                          </>
                         )}
                         
-                        <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} className="w-full p-3 rounded text-white bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none" required disabled={isLoading || categories.length === 0}>
+                        <select value={selectedCategory} onChange={(e) => { setSelectedCategory(e.target.value); setSelectedSubcategory(''); }} className="w-full p-3 rounded text-white bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none" required disabled={isLoading || categories.length === 0}>
                           <option value="" disabled className="text-gray-400">-- اختر القسم --</option>
                           {categories.map((category) => (<option key={category.id} value={category.id} className="bg-gray-800 text-white">{category.name}</option>))}
                           {categories.length === 0 && <option disabled>لا توجد أقسام، يرجى إضافة قسم أولاً.</option>}
+                        </select>
+                        <select value={selectedSubcategory} onChange={(e) => setSelectedSubcategory(e.target.value)} className="w-full p-3 rounded text-white bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none" disabled={isLoading || !selectedCategory}>
+                          <option value="" className="text-gray-400">-- اختر التصنيف الفرعي (اختياري) --</option>
+                          {subcategories
+                            .filter(sc => sc.category_id === selectedCategory)
+                            .map((sc) => (
+                              <option key={sc.id} value={sc.id} className="bg-gray-800 text-white">{(sc as any).name_ar || (sc as any).name}</option>
+                            ))}
+                          {selectedCategory && subcategories.filter(sc => sc.category_id === selectedCategory).length === 0 && (
+                            <option disabled>لا توجد تصنيفات فرعية لهذا القسم</option>
+                          )}
                         </select>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1408,7 +1677,6 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                                 <input type="checkbox" id="is_best_seller" checked={newService.is_best_seller || false} onChange={(e) => setNewService({ ...newService, is_best_seller: e.target.checked })} className="h-4 w-4 accent-blue-500"/>
                                 <label htmlFor="is_best_seller" className="text-white">الأكثر مبيعًا</label>
                             </div>
-                            {/* تمت إزالة خيار إزالة الخلفية من هنا ونقله تحت خانة التحميل */}
                         </div>
 
                         <div>
@@ -1471,6 +1739,102 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                     </>
                   )}
 
+                  {productsSubTab === 'subcategories' && (
+                    <>
+                      {/* Subcategory create/edit form */}
+                      <form onSubmit={editingSubcategory ? handleUpdateSubcategory : handleAddSubcategory} className="mb-8 space-y-4" id="subcategory-form">
+                        <select
+                          value={newSubcategory.category_id}
+                          onChange={(e) => setNewSubcategory({ ...newSubcategory, category_id: e.target.value })}
+                          className="w-full p-3 rounded text-white bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+                          required
+                          disabled={isLoading || categories.length === 0}
+                        >
+                          <option value="" disabled className="text-gray-400">-- اختر القسم --</option>
+                          {categories.map((category) => (
+                            <option key={category.id} value={category.id} className="bg-gray-800 text-white">{category.name}</option>
+                          ))}
+                        </select>
+                        <input
+                          type="text"
+                          placeholder="اسم التصنيف الفرعي (عربي)"
+                          value={newSubcategory.name_ar}
+                          onChange={(e) => setNewSubcategory({ ...newSubcategory, name_ar: e.target.value })}
+                          className="w-full p-3 rounded text-white bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          required
+                          disabled={isLoading}
+                        />
+                        <textarea
+                          placeholder="وصف التصنيف الفرعي (اختياري)"
+                          value={newSubcategory.description_ar}
+                          onChange={(e) => setNewSubcategory({ ...newSubcategory, description_ar: e.target.value })}
+                          rows={3}
+                          className="w-full p-3 rounded text-white bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          disabled={isLoading}
+                        />
+                        <div className="flex gap-3">
+                          <button
+                            type="submit"
+                            className="flex-grow bg-blue-600 text-white py-2.5 px-4 rounded-md font-bold hover:bg-blue-700 flex items-center justify-center gap-2 disabled:opacity-50"
+                            disabled={isLoading}
+                          >
+                            {editingSubcategory ? <><Save size={20} /> حفظ التعديلات</> : <><Plus size={20} /> إضافة تصنيف فرعي</>}
+                          </button>
+                          {editingSubcategory && (
+                            <button
+                              type="button"
+                              onClick={handleCancelEditSubcategory}
+                              className="bg-gray-600 text-white px-4 py-2.5 rounded-md hover:bg-gray-700 flex items-center justify-center gap-2 font-bold"
+                              disabled={isLoading}
+                            >
+                              <X size={20} /> إلغاء
+                            </button>
+                          )}
+                        </div>
+                      </form>
+
+                      {/* Subcategories list */}
+                      <h3 className="text-lg font-semibold mb-4 text-white border-b border-gray-600 pb-2">التصنيفات الفرعية الحالية</h3>
+                      <div className="space-y-3">
+                        {subcategories.map((sc) => (
+                          <div
+                            key={sc.id}
+                            className={`p-4 rounded-md bg-gray-900/50 border border-gray-700 flex justify-between items-center transition-all ${editingSubcategory === sc.id ? 'ring-2 ring-blue-500' : ''}`}
+                          >
+                            <div className="flex-1 overflow-hidden">
+                              <h4 className="font-bold text-white text-lg truncate">{(sc as any).name_ar || (sc as any).name}</h4>
+                              <div className="text-xs text-gray-400 mb-1">القسم: {categories.find(c => c.id === sc.category_id)?.name || 'غير محدد'}</div>
+                              {(sc as any).description_ar && (
+                                <p className="text-gray-400 text-sm mt-1 line-clamp-2">{(sc as any).description_ar}</p>
+                              )}
+                            </div>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => !isLoading && handleEditSubcategory(sc)}
+                                title="تعديل"
+                                className="text-blue-400 hover:text-blue-300 p-2 disabled:opacity-50"
+                                disabled={editingSubcategory === sc.id || isLoading}
+                              >
+                                <Edit size={18} />
+                              </button>
+                              <button
+                                onClick={() => !isLoading && handleDeleteSubcategory(sc.id)}
+                                title="حذف"
+                                className="text-red-500 hover:text-red-400 p-2 disabled:opacity-50"
+                                disabled={isLoading}
+                              >
+                                <Trash2 size={18} />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                        {!isLoading && subcategories.length === 0 && (
+                          <div className="text-gray-400 text-center py-6">لا توجد تصنيفات فرعية بعد.</div>
+                        )}
+                      </div>
+                    </>
+                  )}
+
                   {productsSubTab === 'categories' && (
                     <>
                       <form onSubmit={editingCategory ? handleUpdateCategory : handleAddCategory} className="mb-8 space-y-4" id="category-form">
@@ -1481,7 +1845,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                             {editingCategory ? <><Save size={20} /> حفظ التعديلات</> : <><Plus size={20} /> إضافة قسم</>}
                           </button>
                           {editingCategory && (
-                            <button type="button" onClick={handleCancelEditCategory} className="bg-gray-600 text.white px-4 py-2.5 rounded-md hover:bg-gray-700 flex items-center justify-center gap-2 font-bold" disabled={isLoading}>
+                            <button type="button" onClick={handleCancelEditCategory} className="bg-gray-600 text-white px-4 py-2.5 rounded-md hover:bg-gray-700 flex items-center justify-center gap-2 font-bold" disabled={isLoading}>
                               <X size={20} /> إلغاء
                             </button>
                           )}
@@ -1497,8 +1861,20 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                               {category.description && <p className="text-gray-400 text-sm mt-1 line-clamp-2">{category.description}</p>}
                             </div>
                             <div className="flex gap-2">
-                                <button onClick={() => !isLoading && handleEditCategory(category)} title="تعديل" className="text-blue-400 hover:text-blue-300 p-2 disabled:opacity-50" disabled={editingCategory === category.id || isLoading}><Edit size={18} /></button>
-                                <button onClick={() => !isLoading && handleDeleteCategory(category.id)} title="حذف" className="text-red-500 hover:text-red-400 p-2 disabled:opacity-50" disabled={isLoading}><Trash2 size={18} /></button>
+                              <button onClick={() => !isLoading && handleEditCategory(category)} title="تعديل" className="text-blue-400 hover:text-blue-300 p-2 disabled:opacity-50" disabled={editingCategory === category.id || isLoading}><Edit size={18} /></button>
+                              <button onClick={() => !isLoading && handleDeleteCategory(category.id)} title="حذف" className="text-red-500 hover:text-red-400 p-2 disabled:opacity-50" disabled={isLoading}><Trash2 size={18} /></button>
+                              <button
+                                onClick={() => {
+                                  if (isLoading) return;
+                                  setProductsSubTab('subcategories');
+                                  setNewSubcategory({ ...newSubcategory, category_id: category.id });
+                                }}
+                                title="إضافة تصنيف فرعي لهذا القسم"
+                                className="text-green-400 hover:text-green-300 p-2 disabled:opacity-50"
+                                disabled={isLoading}
+                              >
+                                <Plus size={18} />
+                              </button>
                             </div>
                           </div>
                         ))}
@@ -1520,6 +1896,6 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
           ← العودة للصفحة الرئيسية
         </button>
       </footer>
-    </div>
+    </div> 
   );
 }
