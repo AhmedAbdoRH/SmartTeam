@@ -112,38 +112,35 @@ export default function Services() {
         }}
       >
         {/* Title */}
+        <motion.div 
+          className="text-center mb-4"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <button className="button text-2xl sm:text-6xl lg:text-7xl font-bold">
+            OUR PRODUCTS
+            <div className="hoverEffect">
+              <div></div>
+            </div>
+          </button>
+        </motion.div>
 
         {/* Special Categories */}
         <motion.div
-          className="flex flex-wrap gap-4 justify-center mb-6"
+          className="flex flex-wrap gap-0 sm:gap-0 justify-center mb-6"
           variants={{
             hidden: { opacity: 0 },
             visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
           }}
         >
-          {/* All Products Button */}
-          <motion.button
-            onClick={() => setSelectedCategory(null)}
-            className={`p-4 rounded-lg transition-all duration-300 ${
-              !selectedCategory
-                ? `relative py-2 px-5 bg-[#00BFFF] rounded-full flex items-center justify-center text-white gap-2.5 font-bold border-[3px] border-[#00BFFF4d] outline-none overflow-hidden text-[15px] shadow-xl hover:scale-105 hover:border-[#fff9]`
-                : 'bg-black/20 text-white hover:bg-black/30 hover:shadow-md'
-            }`}
-            variants={{
-              hidden: { opacity: 0, y: 20 },
-              visible: { opacity: 1, y: 0 },
-            }}
-          >
-            Our Products
-          </motion.button>
-
           {/* Featured Products Category */}
           {hasFeaturedProducts && (
             <motion.button
               onClick={() => setSelectedCategory('featured')}
-              className={`p-4 rounded-xl transition-all duration-300 ${
+              className={`p-2 sm:p-4 rounded-xl transition-all duration-300 ${
                 selectedCategory === 'featured'
-                  ? `relative py-2 px-5 bg-[#1b82ae] rounded-full flex items-center justify-center text-white gap-2.5 font-bold border-[3px] border-[#ffffff4d] outline-none overflow-hidden text-[15px] shadow-xl hover:scale-105 hover:border-[#fff9]`
+                  ? `relative py-1.5 sm:py-2 px-3 sm:px-5 bg-[#1b82ae] rounded-full flex items-center justify-center text-white gap-1.5 sm:gap-2.5 font-bold border-[2px] sm:border-[3px] border-[#ffffff4d] outline-none overflow-hidden text-[12px] sm:text-[15px] shadow-xl hover:scale-105 hover:border-[#fff9]`
                   : 'bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 hover:shadow-md'
               }`}
               variants={{
@@ -151,7 +148,7 @@ export default function Services() {
                 visible: { opacity: 1, y: 0 },
               }}
             >
-              <h3 className="text-lg font-semibold flex items-center gap-2">
+              <h3 className="text-sm sm:text-lg font-semibold flex items-center gap-1 sm:gap-2">
                 <span className="text-blue-400">✨</span> Latest Offers
               </h3>
             </motion.button>
@@ -161,9 +158,9 @@ export default function Services() {
           {hasBestSellerProducts && (
             <motion.button
               onClick={() => setSelectedCategory('best_sellers')}
-              className={`p-4 rounded-xl transition-all duration-300 ${
+              className={`p-2 sm:p-4 rounded-xl transition-all duration-300 ${
                 selectedCategory === 'best_sellers'
-                  ? `relative py-2 px-5 bg-[#1b82ae] rounded-full flex items-center justify-center text-white gap-2.5 font-bold border-[3px] border-[#ffffff4d] outline-none overflow-hidden text-[15px] shadow-xl hover:scale-105 hover:border-[#fff9]`
+                  ? `relative py-1.5 sm:py-2 px-3 sm:px-5 bg-[#1b82ae] rounded-full flex items-center justify-center text-white gap-1.5 sm:gap-2.5 font-bold border-[2px] sm:border-[3px] border-[#ffffff4d] outline-none overflow-hidden text-[12px] sm:text-[15px] shadow-xl hover:scale-105 hover:border-[#fff9]`
                   : 'bg-red-500/20 text-red-300 hover:bg-red-500/30 hover:shadow-md'
               }`}
               variants={{
@@ -171,7 +168,7 @@ export default function Services() {
                 visible: { opacity: 1, y: 0 },
               }}
             >
-              <h3 className="text-lg font-semibold flex items-center gap-2">
+              <h3 className="text-sm sm:text-lg font-semibold flex items-center gap-1 sm:gap-2">
                 <span className="text-red-400">🔥</span> Best Sellers
               </h3>
             </motion.button>
@@ -180,20 +177,36 @@ export default function Services() {
 
         {/* Regular Categories */}
         <motion.div
-          className="flex flex-wrap gap-4 justify-center mb-12"
+          className="flex flex-wrap gap-2 sm:gap-4 justify-center mb-12"
           variants={{
             hidden: { opacity: 0 },
             visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
           }}
         >
+          {/* All Products Button - moved here with regular categories */}
+          <motion.button
+            onClick={() => setSelectedCategory(null)}
+            className={`p-2 sm:p-4 rounded-xl transition-all duration-300 ${
+              !selectedCategory
+                ? `relative py-1.5 sm:py-2 px-3 sm:px-5 bg-[#00BFFF] rounded-full flex items-center justify-center text-white gap-1.5 sm:gap-2.5 font-bold border-[2px] sm:border-[3px] border-[#00BFFF4d] outline-none overflow-hidden text-[12px] sm:text-[15px] shadow-xl hover:scale-105 hover:border-[#fff9]`
+                : 'bg-black/20 text-white hover:bg-black/30 hover:shadow-md'
+            }`}
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0 },
+            }}
+          >
+            <h3 className="text-sm sm:text-lg font-semibold">All</h3>
+          </motion.button>
+
           <AnimatePresence>
             {categories.map((category) => (
               <motion.button
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
-                className={`p-4 rounded-xl transition-all duration-300 ${
+                className={`p-2 sm:p-4 rounded-xl transition-all duration-300 ${
                   category.id === selectedCategory
-                    ? `relative py-2 px-5 bg-[#1b82ae] rounded-full flex items-center justify-center text-white gap-2.5 font-bold border-[3px] border-[#ffffff4d] outline-none overflow-hidden text-[15px] shadow-xl hover:scale-105 hover:border-[#fff9]`
+                    ? `relative py-1.5 sm:py-2 px-3 sm:px-5 bg-[#1b82ae] rounded-full flex items-center justify-center text-white gap-1.5 sm:gap-2.5 font-bold border-[2px] sm:border-[3px] border-[#ffffff4d] outline-none overflow-hidden text-[12px] sm:text-[15px] shadow-xl hover:scale-105 hover:border-[#fff9]`
                     : 'bg-black/20 text-white hover:bg-black/30 hover:shadow-md'
                 }`}
                 variants={{
@@ -201,7 +214,7 @@ export default function Services() {
                   visible: { opacity: 1, y: 0 },
                 }}
               >
-                <h3 className="text-lg font-semibold">{category.name}</h3>
+                <h3 className="text-sm sm:text-lg font-semibold">{category.name}</h3>
               </motion.button>
             ))}
           </AnimatePresence>
