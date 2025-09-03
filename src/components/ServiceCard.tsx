@@ -85,18 +85,18 @@ Product link: ${productUrl}`;
       
       <div className="px-6 pb-6 pt-0">
         <div className="flex justify-between items-center">
-          <div className="flex flex-col items-end">
-            {salePrice ? (
-              <>
-                <span className={`font-bold text-lg text-[${lightGold}]`}>{salePrice} EGP</span>
-                <span className="text-sm text-gray-400 line-through">{price} EGP</span>
-              </>
-            ) : (
-              <span className={`font-bold text-lg text-[${lightGold}]`}>{price} EGP</span>
-            )}
-          </div>
-          
+          {/* Left Side - Chat Button and Cart Button */}
           <div className="flex gap-2 items-center">
+            {/* Contact Button */}
+            <button
+              onClick={handleContactClick}
+              className="blue-button blue-order-button flex items-center gap-2"
+            >
+              <div className="blue-button-border"></div>
+              <MessageCircle className="h-5 w-5" />
+              <span className="hidden sm:inline">Order Now</span>
+            </button>
+            
             {/* Add to Cart Button */}
             <button
               onClick={handleAddToCart}
@@ -116,16 +116,18 @@ Product link: ${productUrl}`;
                 <ShoppingCart className="h-5 w-5" />
               )}
             </button>
-            
-            {/* Contact Button */}
-            <button
-              onClick={handleContactClick}
-              className="blue-button blue-order-button flex items-center gap-2"
-            >
-              <div className="blue-button-border"></div>
-              <MessageCircle className="h-5 w-5" />
-              <span className="hidden sm:inline">Order Now</span>
-            </button>
+          </div>
+          
+          {/* Price - Far Right */}
+          <div className="flex flex-col items-end">
+            {salePrice ? (
+              <>
+                <span className={`font-bold text-lg text-[${lightGold}]`}>{salePrice} EGP</span>
+                <span className="text-sm text-gray-400 line-through">{price} EGP</span>
+              </>
+            ) : (
+              <span className={`font-bold text-lg text-[${lightGold}]`}>{price} EGP</span>
+            )}
           </div>
         </div>
       </div>
