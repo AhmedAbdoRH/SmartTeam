@@ -168,7 +168,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
         const { data: { publicUrl } } = supabase.storage.from('services').getPublicUrl(fileName);
         setNewService(prev => ({ ...prev, image_url: publicUrl }));
         setRemoveBgSwitch(true);
-        setSuccessMsg('تم إزالة الخلفية بنجاح بجودة احترافية!');
+        setSuccessMsg('تم إزالة الخلفية بنجاح بذكاء اصطناعي متقدم!');
       } catch (err: any) {
         setRemoveBgSwitch(false);
         // More specific error messages
@@ -905,18 +905,20 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
 
   const handleAddBanner = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newBanner.type === 'text' && !newBanner.title?.trim()) {
+    // Use the current sub-tab type instead of newBanner.type
+    const currentType = bannersSubTab;
+    if (currentType === 'text' && !newBanner.title?.trim()) {
       setError("عنوان البانر مطلوب للنوع النصي.");
       return;
     }
-    if (newBanner.type === 'image' && !newBanner.image_url) {
+    if (currentType === 'image' && !newBanner.image_url) {
       setError("صورة البانر مطلوبة للنوع المصور.");
       return;
     }
     setIsLoading(true);
     try {
       const bannerData = {
-        type: newBanner.type,
+        type: currentType,
         title: newBanner.title || null,
         description: newBanner.description || null,
         image_url: newBanner.image_url || null,
@@ -958,11 +960,13 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
     e.preventDefault();
     if (!editingBanner) return;
 
-    if (newBanner.type === 'text' && !newBanner.title?.trim()) {
+    // Use the current sub-tab type instead of newBanner.type
+    const currentType = bannersSubTab;
+    if (currentType === 'text' && !newBanner.title?.trim()) {
       setError("عنوان البانر مطلوب للنوع النصي.");
       return;
     }
-    if (newBanner.type === 'image' && !newBanner.image_url) {
+    if (currentType === 'image' && !newBanner.image_url) {
       setError("صورة البانر مطلوبة للنوع المصور.");
       return;
     }
@@ -970,7 +974,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
     setIsLoading(true);
     try {
       const bannerData = {
-        type: newBanner.type,
+        type: currentType,
         title: newBanner.title || null,
         description: newBanner.description || null,
         image_url: newBanner.image_url || null,
@@ -1550,11 +1554,11 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                                   onChange={(e) => handleToggleRemoveBgSwitch(e.target.checked)}
                                   disabled={removingBackground || isLoading}
                                 />
-                                <span className="leading-none">إزالة الخلفية (احترافي)</span>
+                                <span className="leading-none">إزالة الخلفية (ميزة تجريبية)</span>
                                 {removingBackground && <span className="text-[10px] text-gray-400">جاري المعالجة...</span>}
                               </label>
                             </div>
-                          </>
+                          </>س
                         )}
                         
                         <select value={selectedCategory} onChange={(e) => { setSelectedCategory(e.target.value); setSelectedSubcategory(''); }} className="w-full p-3 rounded text-white bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none" required disabled={isLoading || categories.length === 0}>

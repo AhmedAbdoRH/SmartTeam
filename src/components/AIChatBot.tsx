@@ -239,7 +239,7 @@ export default function AIChatBot() {
                                             <div className={`rounded-2xl px-3 py-2 text-[13.6px] flex flex-col ${message.isUser ? 'bg-[#1b82ae] text-white' : 'bg-white/10 text-white border border-white/20'}`}>
                                                 <RenderMessageWithLinks text={message.text} />
                                                 {!message.isUser && message.id !== '1' && (
-                                                    <a href="https://wa.me/201027381559" target="_blank" rel="noopener noreferrer" className="mt-3 flex items-center justify-center gap-2 text-xs bg-[#1b82ae]/30 hover:bg-[#1b82ae]/50 text-white font-semibold py-1.5 px-3 rounded-lg transition-all border border-[#1b82ae]/50">
+                                                    <a href="https://wa.me/201557777587" target="_blank" rel="noopener noreferrer" className="mt-3 flex items-center justify-center gap-2 text-xs bg-[#1b82ae]/30 hover:bg-[#1b82ae]/50 text-white font-semibold py-1.5 px-3 rounded-lg transition-all border border-[#1b82ae]/50">
                                                         <MessageSquare className="w-3 h-3" /> تواصل واتساب مع البائع
                                                     </a>
                                                 )}

@@ -30,7 +30,7 @@ export default function ProductCard({ title, description, imageUrl, price, saleP
     const message = `Inquiry about product: ${title}
 Product link: ${productUrl}`;
     // Open the WhatsApp chat link in a new tab
-    window.open(`https://wa.me/201027381559?text=${encodeURIComponent(message)}`, '_blank');
+    window.open(`https://wa.me/201557777587?text=${encodeURIComponent(message)}`, '_blank');
   };
 
   const { addToCart } = useCart();
