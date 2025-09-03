@@ -94,7 +94,7 @@ export default function ProductDetails() {
     if (!service) return;
     const productUrl = window.location.href;
     const message = `Inquiry about product: ${service.title}\nProduct link: ${productUrl}`;
-    window.open(`https://wa.me/201027381559?text=${encodeURIComponent(message)}`, '_blank');
+    window.open(`https://wa.me/01557777587?text=${encodeURIComponent(message)}`, '_blank');
   };
 
   // Get all images for the main product carousel
