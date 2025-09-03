@@ -114,58 +114,105 @@ async function removeBackgroundWithCanvas(imageInput: File | string): Promise<Fr
     // Get image data
     const { data, width, height } = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-    // Enhanced background detection using corners and edges
-    const cornerSize = Math.min(30, Math.floor(Math.min(width, height) * 0.15));
-    const corners = [
-      // Top-left corner
-      ...Array.from({ length: cornerSize }, (_, i) => 
-        Array.from({ length: cornerSize }, (_, j) => (j * width + i) * 4)
+    // Professional background detection using multiple sampling strategies
+    const edgeSize = Math.min(50, Math.floor(Math.min(width, height) * 0.2));
+    const centerSize = Math.min(20, Math.floor(Math.min(width, height) * 0.1));
+    
+    // Sample background pixels from multiple locations
+    const backgroundSamples = [
+      // Corners (most reliable for background)
+      ...Array.from({ length: edgeSize }, (_, i) => 
+        Array.from({ length: edgeSize }, (_, j) => (j * width + i) * 4)
       ).flat(),
-      // Top-right corner
-      ...Array.from({ length: cornerSize }, (_, i) => 
-        Array.from({ length: cornerSize }, (_, j) => (j * width + (width - 1 - i)) * 4)
+      ...Array.from({ length: edgeSize }, (_, i) => 
+        Array.from({ length: edgeSize }, (_, j) => (j * width + (width - 1 - i)) * 4)
       ).flat(),
-      // Bottom-left corner
-      ...Array.from({ length: cornerSize }, (_, i) => 
-        Array.from({ length: cornerSize }, (_, j) => ((height - 1 - j) * width + i) * 4)
+      ...Array.from({ length: edgeSize }, (_, i) => 
+        Array.from({ length: edgeSize }, (_, j) => ((height - 1 - j) * width + i) * 4)
       ).flat(),
-      // Bottom-right corner
-      ...Array.from({ length: cornerSize }, (_, i) => 
-        Array.from({ length: cornerSize }, (_, j) => ((height - 1 - j) * width + (width - 1 - i)) * 4)
+      ...Array.from({ length: edgeSize }, (_, i) => 
+        Array.from({ length: edgeSize }, (_, j) => ((height - 1 - j) * width + (width - 1 - i)) * 4)
       ).flat(),
-      // Top edge
-      ...Array.from({ length: width }, (_, i) => i * 4),
-      // Bottom edge
-      ...Array.from({ length: width }, (_, i) => ((height - 1) * width + i) * 4),
-      // Left edge
-      ...Array.from({ length: height }, (_, j) => (j * width) * 4),
-      // Right edge
-      ...Array.from({ length: height }, (_, j) => (j * width + (width - 1)) * 4)
+      
+      // Edges (for border detection)
+      ...Array.from({ length: Math.floor(width * 0.1) }, (_, i) => i * 4),
+      ...Array.from({ length: Math.floor(width * 0.1) }, (_, i) => ((height - 1) * width + i) * 4),
+      ...Array.from({ length: Math.floor(height * 0.1) }, (_, j) => (j * width) * 4),
+      ...Array.from({ length: Math.floor(height * 0.1) }, (_, j) => (j * width + (width - 1)) * 4),
+      
+      // Center area (to avoid subject)
+      ...Array.from({ length: centerSize }, (_, i) => 
+        Array.from({ length: centerSize }, (_, j) => {
+          const centerX = Math.floor(width / 2) - Math.floor(centerSize / 2) + i;
+          const centerY = Math.floor(height / 2) - Math.floor(centerSize / 2) + j;
+          return (centerY * width + centerX) * 4;
+        })
+      ).flat()
     ];
 
-    // Calculate average background color
-    let avgR = 0, avgG = 0, avgB = 0;
-    for (const idx of corners) {
-      avgR += data[idx];
-      avgG += data[idx + 1];
-      avgB += data[idx + 2];
+    // Calculate weighted average background color (corners have higher weight)
+    let totalWeight = 0;
+    let weightedR = 0, weightedG = 0, weightedB = 0;
+    
+    // Weight corners more heavily (they're most likely to be background)
+    const cornerWeight = 3;
+    const edgeWeight = 2;
+    const centerWeight = 1;
+    
+    for (let i = 0; i < backgroundSamples.length; i++) {
+      const idx = backgroundSamples[i];
+      let weight = centerWeight;
+      
+      // Determine weight based on position
+      const x = (idx / 4) % width;
+      const y = Math.floor((idx / 4) / width);
+      
+      if (x < edgeSize || x >= width - edgeSize || y < edgeSize || y >= height - edgeSize) {
+        weight = cornerWeight;
+      } else if (x < edgeSize * 2 || x >= width - edgeSize * 2 || y < edgeSize * 2 || y >= height - edgeSize * 2) {
+        weight = edgeWeight;
+      }
+      
+      weightedR += data[idx] * weight;
+      weightedG += data[idx + 1] * weight;
+      weightedB += data[idx + 2] * weight;
+      totalWeight += weight;
     }
-    avgR /= corners.length;
-    avgG /= corners.length;
-    avgB /= corners.length;
+    
+    const avgR = weightedR / totalWeight;
+    const avgG = weightedG / totalWeight;
+    const avgB = weightedB / totalWeight;
 
-    // Calculate threshold with better algorithm
+    // Calculate adaptive threshold based on color variance
     let variance = 0;
-    for (const idx of corners) {
+    let validSamples = 0;
+    
+    for (const idx of backgroundSamples) {
       const r = data[idx] - avgR;
       const g = data[idx + 1] - avgG;
       const b = data[idx + 2] - avgB;
-      variance += r * r + g * g + b * b;
+      const distance = Math.sqrt(r * r + g * g + b * b);
+      
+      // Only include samples that are reasonably close to average
+      if (distance < 50) {
+        variance += distance * distance;
+        validSamples++;
+      }
     }
-    const stdDev = Math.sqrt(variance / corners.length);
-    const threshold = Math.max(20, Math.min(60, stdDev * 2.5)); // More intelligent threshold
+    
+    const stdDev = validSamples > 0 ? Math.sqrt(variance / validSamples) : 20;
+    
+    // Adaptive threshold based on image characteristics
+    const baseThreshold = Math.max(15, Math.min(80, stdDev * 2.2));
+    const imageComplexity = Math.min(width, height) / 100; // Larger images can handle higher thresholds
+    const threshold = baseThreshold * (1 + imageComplexity * 0.1);
 
-    // Process pixels with improved algorithm
+    // Professional pixel processing with edge detection and feathering
+    const processedData = new Uint8ClampedArray(data);
+    
+    // First pass: identify background pixels
+    const backgroundMask = new Array(data.length / 4).fill(false);
+    
     for (let i = 0; i < data.length; i += 4) {
       const r = data[i];
       const g = data[i + 1];
@@ -175,18 +222,68 @@ async function removeBackgroundWithCanvas(imageInput: File | string): Promise<Fr
       // Skip already transparent pixels
       if (alpha === 0) continue;
 
-      // Calculate color distance
+      // Calculate color distance using perceptual color difference
+      const deltaR = r - avgR;
+      const deltaG = g - avgG;
+      const deltaB = b - avgB;
+      
+      // Use weighted color difference (more sensitive to green)
       const distance = Math.sqrt(
-        (r - avgR) ** 2 + (g - avgG) ** 2 + (b - avgB) ** 2
+        deltaR * deltaR * 0.3 + 
+        deltaG * deltaG * 0.59 + 
+        deltaB * deltaB * 0.11
       );
 
-      // Make transparent if close to background color
+      // Mark as background if close to background color
       if (distance < threshold) {
-        data[i + 3] = 0; // Make transparent
-      } else if (distance < threshold * 1.5) {
-        // Partial transparency for smoother edges
-        data[i + 3] = Math.floor(alpha * 0.3);
+        backgroundMask[i / 4] = true;
       }
+    }
+    
+    // Second pass: apply feathering and edge smoothing
+    for (let i = 0; i < data.length; i += 4) {
+      const pixelIndex = i / 4;
+      const x = pixelIndex % width;
+      const y = Math.floor(pixelIndex / width);
+      
+      if (backgroundMask[pixelIndex]) {
+        // Check neighboring pixels for edge detection
+        let edgeStrength = 0;
+        let neighborCount = 0;
+        
+        // Check 8 surrounding pixels
+        for (let dx = -1; dx <= 1; dx++) {
+          for (let dy = -1; dy <= 1; dy++) {
+            if (dx === 0 && dy === 0) continue;
+            
+            const nx = x + dx;
+            const ny = y + dy;
+            
+            if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+              const neighborIndex = (ny * width + nx) * 4;
+              const neighborPixelIndex = neighborIndex / 4;
+              
+              if (!backgroundMask[neighborPixelIndex]) {
+                edgeStrength++;
+              }
+              neighborCount++;
+            }
+          }
+        }
+        
+        // Apply feathering based on edge strength
+        if (edgeStrength > 0) {
+          const featherAmount = edgeStrength / neighborCount;
+          processedData[i + 3] = Math.floor(255 * (1 - featherAmount * 0.8));
+        } else {
+          processedData[i + 3] = 0; // Full transparency
+        }
+      }
+    }
+    
+    // Copy processed data back
+    for (let i = 0; i < data.length; i++) {
+      data[i] = processedData[i];
     }
 
     // Put processed data back

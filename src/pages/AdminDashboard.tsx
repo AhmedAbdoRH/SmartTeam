@@ -168,7 +168,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
         const { data: { publicUrl } } = supabase.storage.from('services').getPublicUrl(fileName);
         setNewService(prev => ({ ...prev, image_url: publicUrl }));
         setRemoveBgSwitch(true);
-        setSuccessMsg('تم إزالة الخلفية بنجاح!');
+        setSuccessMsg('تم إزالة الخلفية بنجاح بجودة احترافية!');
       } catch (err: any) {
         setRemoveBgSwitch(false);
         // More specific error messages
@@ -177,7 +177,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
         } else if (err.message.includes('حجم الملف')) {
           setError(`حجم الصورة كبير جداً: ${err.message}`);
         } else {
-          setError(`تعذر إزالة الخلفية: ${err.message}`);
+        setError(`تعذر إزالة الخلفية: ${err.message}`);
         }
       } finally {
         setRemovingBackground(false);
@@ -235,7 +235,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
       } else if (err.message.includes('حجم الملف')) {
         setError(`حجم الصورة كبير جداً: ${err.message}`);
       } else {
-        setError(`تعذر إزالة الخلفية: ${err.message}`);
+      setError(`تعذر إزالة الخلفية: ${err.message}`);
       }
     } finally {
       setRemovingBackground(false);
@@ -1550,7 +1550,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                                   onChange={(e) => handleToggleRemoveBgSwitch(e.target.checked)}
                                   disabled={removingBackground || isLoading}
                                 />
-                                <span className="leading-none">إزالة الخلفية</span>
+                                <span className="leading-none">إزالة الخلفية (احترافي)</span>
                                 {removingBackground && <span className="text-[10px] text-gray-400">جاري المعالجة...</span>}
                               </label>
                             </div>
