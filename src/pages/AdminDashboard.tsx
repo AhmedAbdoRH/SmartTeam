@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { removeBackgroundWithGemini, base64ToFile, createImageDataUrl, validateApiKey } from '../lib/geminiService';
+import { removeBackgroundWithCanvas, base64ToFile as canvasBase64ToFile } from '../lib/canvasBgRemoval';
+import { removeBackgroundWithFreeAPI, base64ToFile as freeBase64ToFile } from '../lib/freeBgRemovalService';
 import type { Category, Service, Banner, StoreSettings, Testimonial, Subcategory } from '../types/database'; // Added Subcategory type
 import { Trash2, Edit, Plus, Save, X, Upload, ChevronDown, ChevronUp, Facebook, Instagram, Twitter, Palette, Store, Image, List, Package } from 'lucide-react';
 import { ToastContainer, toast } from 'react-toastify';
@@ -119,73 +122,15 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
     }
   };
 
-  // Remove background from an existing image URL (uses same algorithm)
+  // Remove background from an existing image URL using Google Gemini Nano Banana
   async function removeBackgroundFromImageUrl(url: string): Promise<File> {
-    const img = new window.Image();
-    img.crossOrigin = 'anonymous';
-    await new Promise((resolve, reject) => {
-      img.onload = () => resolve(null);
-      img.onerror = reject;
-      img.src = url;
-    });
-
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    if (!ctx) throw new Error('تعذر إنشاء سياق الرسم');
-    canvas.width = img.width;
-    canvas.height = img.height;
-    ctx.drawImage(img, 0, 0);
-
-    const { data, width, height } = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-    const dist = (r1:number,g1:number,b1:number,r2:number,g2:number,b2:number) => {
-      const dr=r1-r2, dg=g1-g2, db=b1-b2;
-      return Math.sqrt(dr*dr+dg*dg+db*db);
-    };
-
-    function avgCorner(x0:number, y0:number, w:number, h:number){
-      let sr=0, sg=0, sb=0, c=0;
-      for(let y=y0; y<y0+h; y++){
-        for(let x=x0; x<x0+w; x++){
-          const idx = (y*width + x) * 4;
-          sr += data[idx]; sg += data[idx+1]; sb += data[idx+2]; c++;
-        }
-      }
-      return [sr/c, sg/c, sb/c] as [number,number,number];
+    const result = await removeBackgroundWithGemini(url, "Remove the background from this image, keeping only the main subject. Make the background transparent.");
+    
+    if (!result.success || !result.imageData) {
+      throw new Error(result.error || 'فشل في إزالة الخلفية');
     }
-
-    const sample = 10;
-    const c1 = avgCorner(0, 0, sample, sample);
-    const c2 = avgCorner(width-sample, 0, sample, sample);
-    const c3 = avgCorner(0, height-sample, sample, sample);
-    const c4 = avgCorner(width-sample, height-sample, sample, sample);
-    const bg = [
-      (c1[0]+c2[0]+c3[0]+c4[0])/4,
-      (c1[1]+c2[1]+c3[1]+c4[1])/4,
-      (c1[2]+c2[2]+c3[2]+c4[2])/4,
-    ] as [number,number,number];
-
-    const threshold = 60;
-    const feather = 20;
-
-    const imgData = ctx.getImageData(0, 0, width, height);
-    const d = imgData.data;
-    for (let i = 0; i < d.length; i += 4) {
-      const r=d[i], g=d[i+1], b=d[i+2];
-      const distance = dist(r,g,b,bg[0],bg[1],bg[2]);
-      if (distance <= threshold) {
-        d[i+3] = 0;
-      } else if (distance <= threshold + feather) {
-        const t = (distance - threshold) / feather;
-        d[i+3] = Math.min(255, Math.max(0, Math.round(255 * t)));
-      }
-    }
-    ctx.putImageData(imgData, 0, 0);
-
-    const blob: Blob = await new Promise((resolve, reject) => {
-      canvas.toBlob((b) => b ? resolve(b) : reject(new Error('فشل إنشاء الصورة')), 'image/png');
-    });
-    return new File([blob], `${Date.now()}_bg_removed.png`, { type: 'image/png' });
+    
+    return base64ToFile(result.imageData, `${Date.now()}_bg_removed.png`);
   }
 
   const handleToggleRemoveBgSwitch = async (checked: boolean) => {
@@ -194,20 +139,46 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
       setRemovingBackground(true);
       try {
         if (!originalServiceImageUrl) setOriginalServiceImageUrl(newService.image_url);
-        const processed = await removeBackgroundFromImageUrl(newService.image_url);
-        const fileExt = processed.name.split('.').pop();
+        
+        // Show loading message
+        setSuccessMsg('جاري معالجة الصورة وإزالة الخلفية...');
+        
+        // Use free background removal service
+        const result = await removeBackgroundWithFreeAPI(newService.image_url);
+        
+        if (!result.success) {
+          throw new Error(result.error || 'فشل في إزالة الخلفية');
+        }
+        
+        if (!result.imageData) {
+          throw new Error('لم يتم الحصول على صورة معالجة');
+        }
+        
+        // Convert base64 to file
+        const processedFile = base64ToFile(result.imageData, 'processed_image.png');
+        
+        // Upload to Supabase
+        const fileExt = processedFile.name.split('.').pop();
         const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
         const { error: uploadError } = await supabase.storage
           .from('services')
-          .upload(fileName, processed, { upsert: true });
+          .upload(fileName, processedFile, { upsert: true });
         if (uploadError) throw uploadError;
+        
         const { data: { publicUrl } } = supabase.storage.from('services').getPublicUrl(fileName);
         setNewService(prev => ({ ...prev, image_url: publicUrl }));
         setRemoveBgSwitch(true);
-        setSuccessMsg('تم تحويل الصورة إلى خلفية شفافة');
+        setSuccessMsg('تم إزالة الخلفية بنجاح بذكاء اصطناعي متقدم!');
       } catch (err: any) {
         setRemoveBgSwitch(false);
+        // More specific error messages
+        if (err.message.includes('API')) {
+          setError(`خطأ في خدمة إزالة الخلفية: ${err.message}`);
+        } else if (err.message.includes('حجم الملف')) {
+          setError(`حجم الصورة كبير جداً: ${err.message}`);
+        } else {
         setError(`تعذر إزالة الخلفية: ${err.message}`);
+        }
       } finally {
         setRemovingBackground(false);
       }
@@ -220,85 +191,15 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
     }
   };
 
-  // إزالة الخلفية داخل المتصفح باستخدام كانفس عبر تقدير لون الخلفية من زوايا الصورة
+  // إزالة الخلفية باستخدام خدمة مجانية
   async function removeBackgroundFromFile(file: File): Promise<File> {
-    // حمل الصورة
-    const img = new window.Image();
-    const dataUrl: string = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-    await new Promise((resolve, reject) => {
-      img.onload = () => resolve(null);
-      img.onerror = reject;
-      img.src = dataUrl;
-    });
-
-    // ارسم على كانفس
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    if (!ctx) throw new Error('تعذر إنشاء سياق الرسم');
-    canvas.width = img.width;
-    canvas.height = img.height;
-    ctx.drawImage(img, 0, 0);
-
-    const { data, width, height } = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-    // دالة مسافة اللون
-    const dist = (r1:number,g1:number,b1:number,r2:number,g2:number,b2:number) => {
-      const dr=r1-r2, dg=g1-g2, db=b1-b2;
-      return Math.sqrt(dr*dr+dg*dg+db*db);
-    };
-
-    // احسب متوسط لون الزوايا (منطقة 10x10 من كل زاوية)
-    function avgCorner(x0:number, y0:number, w:number, h:number){
-      let sr=0, sg=0, sb=0, c=0;
-      for(let y=y0; y<y0+h; y++){
-        for(let x=x0; x<x0+w; x++){
-          const idx = (y*width + x) * 4;
-          sr += data[idx]; sg += data[idx+1]; sb += data[idx+2]; c++;
-        }
-      }
-      return [sr/c, sg/c, sb/c] as [number,number,number];
+    const result = await removeBackgroundWithFreeAPI(file);
+    
+    if (!result.success || !result.imageData) {
+      throw new Error(result.error || 'فشل في إزالة الخلفية');
     }
-
-    const sample = 10;
-    const c1 = avgCorner(0, 0, sample, sample);
-    const c2 = avgCorner(width-sample, 0, sample, sample);
-    const c3 = avgCorner(0, height-sample, sample, sample);
-    const c4 = avgCorner(width-sample, height-sample, sample, sample);
-    const bg = [
-      (c1[0]+c2[0]+c3[0]+c4[0])/4,
-      (c1[1]+c2[1]+c3[1]+c4[1])/4,
-      (c1[2]+c2[2]+c3[2]+c4[2])/4,
-    ] as [number,number,number];
-
-    // عتبات الإزالة والتدرج (feather)
-    const threshold = 60; // كلما زادت كان الإزالة أشد
-    const feather = 20;   // نطاق تدرّج الألفا حول العتبة
-
-    // عدّل ألفا البكسلات
-    const imgData = ctx.getImageData(0, 0, width, height);
-    const d = imgData.data;
-    for (let i = 0; i < d.length; i += 4) {
-      const r=d[i], g=d[i+1], b=d[i+2];
-      const distance = dist(r,g,b,bg[0],bg[1],bg[2]);
-      if (distance <= threshold) {
-        d[i+3] = 0; // شفاف بالكامل
-      } else if (distance <= threshold + feather) {
-        const t = (distance - threshold) / feather; // 0..1
-        d[i+3] = Math.min(255, Math.max(0, Math.round(255 * t)));
-      }
-    }
-    ctx.putImageData(imgData, 0, 0);
-
-    // حوّل إلى PNG مع ألفا
-    const blob: Blob = await new Promise((resolve, reject) => {
-      canvas.toBlob((b) => b ? resolve(b) : reject(new Error('فشل إنشاء الصورة')), 'image/png');
-    });
-    return new File([blob], `${Date.now()}_bg_removed.png`, { type: 'image/png' });
+    
+    return freeBase64ToFile(result.imageData, `${Date.now()}_bg_removed.png`);
   }
 
   // رافع صورة مع إزالة الخلفية ورفعها إلى Supabase
@@ -309,9 +210,12 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
     try {
       if (!file.type.startsWith('image/')) throw new Error('الرجاء اختيار ملف صورة صالح');
 
+      // Show loading message
+      setSuccessMsg('جاري معالجة الصورة باستخدام Google Gemini...');
+
       // قلل الحجم أولاً إذا لزم
       const resized = await resizeImageIfNeeded(file, 2);
-      // أزل الخلفية
+      // أزل الخلفية باستخدام Google Gemini
       const processed = await removeBackgroundFromFile(resized);
 
       const fileExt = processed.name.split('.').pop();
@@ -323,9 +227,16 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
 
       const { data: { publicUrl } } = supabase.storage.from('services').getPublicUrl(fileName);
       setNewService(prev => ({ ...prev, image_url: publicUrl }));
-      setSuccessMsg('تمت إزالة الخلفية ورفع الصورة بنجاح!');
+      setSuccessMsg('تمت إزالة الخلفية ورفع الصورة بنجاح باستخدام Google Gemini!');
     } catch (err: any) {
+      // More specific error messages
+      if (err.message.includes('API')) {
+        setError(`خطأ في خدمة Google Gemini: ${err.message}`);
+      } else if (err.message.includes('حجم الملف')) {
+        setError(`حجم الصورة كبير جداً: ${err.message}`);
+      } else {
       setError(`تعذر إزالة الخلفية: ${err.message}`);
+      }
     } finally {
       setRemovingBackground(false);
       // امسح قيمة المدخل حتى يمكن اختيار نفس الملف لاحقاً
@@ -994,18 +905,20 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
 
   const handleAddBanner = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newBanner.type === 'text' && !newBanner.title?.trim()) {
+    // Use the current sub-tab type instead of newBanner.type
+    const currentType = bannersSubTab;
+    if (currentType === 'text' && !newBanner.title?.trim()) {
       setError("عنوان البانر مطلوب للنوع النصي.");
       return;
     }
-    if (newBanner.type === 'image' && !newBanner.image_url) {
+    if (currentType === 'image' && !newBanner.image_url) {
       setError("صورة البانر مطلوبة للنوع المصور.");
       return;
     }
     setIsLoading(true);
     try {
       const bannerData = {
-        type: newBanner.type,
+        type: currentType,
         title: newBanner.title || null,
         description: newBanner.description || null,
         image_url: newBanner.image_url || null,
@@ -1047,11 +960,13 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
     e.preventDefault();
     if (!editingBanner) return;
 
-    if (newBanner.type === 'text' && !newBanner.title?.trim()) {
+    // Use the current sub-tab type instead of newBanner.type
+    const currentType = bannersSubTab;
+    if (currentType === 'text' && !newBanner.title?.trim()) {
       setError("عنوان البانر مطلوب للنوع النصي.");
       return;
     }
-    if (newBanner.type === 'image' && !newBanner.image_url) {
+    if (currentType === 'image' && !newBanner.image_url) {
       setError("صورة البانر مطلوبة للنوع المصور.");
       return;
     }
@@ -1059,7 +974,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
     setIsLoading(true);
     try {
       const bannerData = {
-        type: newBanner.type,
+        type: currentType,
         title: newBanner.title || null,
         description: newBanner.description || null,
         image_url: newBanner.image_url || null,
@@ -1639,11 +1554,11 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                                   onChange={(e) => handleToggleRemoveBgSwitch(e.target.checked)}
                                   disabled={removingBackground || isLoading}
                                 />
-                                <span className="leading-none">بدون خلفية</span>
+                                <span className="leading-none">إزالة الخلفية (ميزة تجريبية)</span>
                                 {removingBackground && <span className="text-[10px] text-gray-400">جاري المعالجة...</span>}
                               </label>
                             </div>
-                          </>
+                          </>س
                         )}
                         
                         <select value={selectedCategory} onChange={(e) => { setSelectedCategory(e.target.value); setSelectedSubcategory(''); }} className="w-full p-3 rounded text-white bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none" required disabled={isLoading || categories.length === 0}>
