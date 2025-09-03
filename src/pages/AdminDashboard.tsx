@@ -1558,7 +1558,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                                 {removingBackground && <span className="text-[10px] text-gray-400">جاري المعالجة...</span>}
                               </label>
                             </div>
-                          </>س
+                          </>
                         )}
                         
                         <select value={selectedCategory} onChange={(e) => { setSelectedCategory(e.target.value); setSelectedSubcategory(''); }} className="w-full p-3 rounded text-white bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none" required disabled={isLoading || categories.length === 0}>
