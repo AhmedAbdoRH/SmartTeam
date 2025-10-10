@@ -99,7 +99,7 @@ export default function AIChatBot() {
         if (products.length > 0) {
             context += `المنتجات والخدمات المتاحة:\n`;
             products.forEach(product => {
-                const productUrl = `https://smartteam.com/product/${product.id}`;
+                const productUrl = `https://smartteameg.com/product/${product.id}`;
                 context += `\n--- ${product.title} ---\n`;
                 context += `الوصف: ${product.description || 'لا يوجد وصف متاح'}\n`;
                 if (product.price) context += `السعر: ${product.price} ج.م\n`;
