@@ -713,20 +713,19 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
     setIsLoading(true);
     try {
         const serviceToAdd = {
-            title: newService.title,
-            description: newService.description || null,
-            description_en: newService.description_en || null,
-            image_url: newService.image_url,
-            price: newService.price,
-            sale_price: newService.sale_price || null,
+            ...newService,
             category_id: selectedCategory,
             subcategory_id: selectedSubcategory || null,
-            gallery: Array.isArray(newService.gallery) ? newService.gallery : [],
+            sale_price: newService.sale_price || null,
             is_featured: newService.is_featured || false,
             is_best_seller: newService.is_best_seller || false
         };
 
-        const { error } = await supabase.from('services').insert([serviceToAdd]);
+        const { error } = await supabase.from('services').insert([{
+          ...serviceToAdd,
+          description: serviceToAdd.description || null,
+          description_en: serviceToAdd.description_en || null
+        }]);
         if (error) throw error;
 
         // Reset form
@@ -786,8 +785,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
     try {
       const serviceToUpdate = {
         title: newService.title,
-        description: newService.description || null,
-        description_en: newService.description_en || null,
+        description: newService.description,
         image_url: newService.image_url,
         price: newService.price,
         sale_price: newService.sale_price || null,

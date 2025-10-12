@@ -15,7 +15,7 @@ function usePrevious<T>(value: T): T | undefined {
 }
 
 export default function ProductDetails() {
-  const { t } = useLanguage();
+  const { t, currentLanguage } = useLanguage();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [service, setService] = useState<Service | null>(null);
@@ -276,7 +276,9 @@ export default function ProductDetails() {
                 <div className="md:w-1/2 p-8">
                   <h1 className="text-3xl font-bold mb-4 text-secondary">{service.title}</h1>
                   <p className="text-white mb-6 text-lg leading-relaxed">
-                    {service.description}
+                    {(currentLanguage === 'en' && service.description_en && service.description_en.trim()) 
+                      ? service.description_en 
+                      : service.description}
                   </p>
                   <div className="border-t border-gray-700 pt-6 mb-6">
                     <div className="text-2xl font-bold text-accent mb-6">

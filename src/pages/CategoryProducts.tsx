@@ -120,6 +120,7 @@ export default function CategoryProducts() {
                   id={service.id}
                   title={service.title}
                   description={service.description || ''}
+                  description_en={service.description_en || null}
                   imageUrl={service.image_url || ''}
                   price={service.price || ''}
                   salePrice={service.sale_price || null}
