@@ -2,12 +2,14 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Target, Facebook, Instagram, Twitter, Snail as Snapchat, Youtube } from 'lucide-react';
 import type { StoreSettings } from '../types/database';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface FooterProps {
   storeSettings?: StoreSettings | null;
 }
 
 export default function Footer({ storeSettings }: FooterProps) {
+  const { t } = useLanguage();
   const socialLinks = [
     { url: storeSettings?.facebook_url, icon: Facebook, label: 'Facebook' },
     { url: storeSettings?.instagram_url, icon: Instagram, label: 'Instagram' },
@@ -41,7 +43,7 @@ export default function Footer({ storeSettings }: FooterProps) {
           
           <div className="flex flex-col items-center gap-1">
             <p className="text-white text-opacity-50 text-xs">
-              Store developed by
+              {t('footer.developedBy')}
             </p>
             <a 
               href="https://RehlatHadaf.online" 

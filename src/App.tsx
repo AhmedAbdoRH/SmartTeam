@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Helmet } from 'react-helmet-async';
 import { supabase } from './lib/supabase';
 import { CartProvider } from './contexts/CartContext';
+import { LanguageProvider } from './contexts/LanguageContext';
 import Cart from './components/Cart';
 import Header from './components/Header';
 import BannerSlider from './components/BannerSlider';
@@ -147,7 +148,7 @@ function App() {
         } as StoreSettings);
         return;
       }
-      
+
       if (data) {
         // Fix invalid logo URL that causes 400 error
         if (data.logo_url === 'https://dndnvufgohkacfbqenhj.supabase.co/storage/v1/object/public/services/logo.png') {
@@ -232,9 +233,6 @@ function App() {
         <BannerSlider banners={layoutBanners} />
       )}
       <MainFade>{children}</MainFade>
-      {window.location.pathname === '/' && storeSettings?.show_testimonials && (
-        <Testimonials />
-      )}
       <Footer storeSettings={storeSettings} />
       <WhatsAppButton />
     </div>
@@ -250,61 +248,63 @@ function App() {
   }
 
   return (
-    <ThemeProvider>
-      <CartProvider>
-        <Helmet>
-          <title>{storeSettings?.meta_title || storeSettings?.store_name || 'Smart Team | حلول ذكية'}</title>
-          <meta name="description" content={storeSettings?.meta_description || storeSettings?.store_description || 'أفضل حلول ومنتجات المنازل الذكية'} />
-          {storeSettings?.keywords && storeSettings.keywords.length > 0 && (
-            <meta name="keywords" content={storeSettings.keywords.join(', ')} />
-          )}
-          {storeSettings?.favicon_url && (
-            <link rel="icon" href={storeSettings.favicon_url} />
-          )}
-          {storeSettings?.og_image_url && (
-            <meta property="og:image" content={storeSettings.og_image_url} />
-          )}
-          <meta property="og:title" content={storeSettings?.meta_title || storeSettings?.store_name || ''} />
-          <meta property="og:description" content={storeSettings?.meta_description || storeSettings?.store_description || ''} />
-          <meta property="og:type" content="website" />
-        </Helmet>
-        <Router>
-          <Routes>
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin/dashboard" element={
-              <PrivateRoute>
-                <AdminDashboard onSettingsUpdate={fetchStoreSettings} />
-              </PrivateRoute>
-            } />
+    <LanguageProvider>
+      <ThemeProvider>
+        <CartProvider>
+          <Helmet>
+            <title>{storeSettings?.meta_title || storeSettings?.store_name || 'Smart Team | حلول ذكية'}</title>
+            <meta name="description" content={storeSettings?.meta_description || storeSettings?.store_description || 'أفضل حلول ومنتجات المنازل الذكية'} />
+            {storeSettings?.keywords && storeSettings.keywords.length > 0 && (
+              <meta name="keywords" content={storeSettings.keywords.join(', ')} />
+            )}
+            {storeSettings?.favicon_url && (
+              <link rel="icon" href={storeSettings.favicon_url} />
+            )}
+            {storeSettings?.og_image_url && (
+              <meta property="og:image" content={storeSettings.og_image_url} />
+            )}
+            <meta property="og:title" content={storeSettings?.meta_title || storeSettings?.store_name || ''} />
+            <meta property="og:description" content={storeSettings?.meta_description || storeSettings?.store_description || ''} />
+            <meta property="og:type" content="website" />
+          </Helmet>
+          <Router>
+            <Routes>
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin/dashboard" element={
+                <PrivateRoute>
+                  <AdminDashboard onSettingsUpdate={fetchStoreSettings} />
+                </PrivateRoute>
+              } />
 
-            <Route path="/service/:id" element={
-              <Layout banners={banners}>
-                <ServiceDetails />
-              </Layout>
-            } />
-            <Route path="/product/:id" element={
-              <Layout banners={banners}>
-                <ProductDetails />
-              </Layout>
-            } />
-            <Route path="/category/:categoryId" element={
-              <Layout banners={banners}>
-                <CategoryProducts />
-              </Layout>
-            } />
-            <Route path="/" element={
-              <Layout banners={banners}>
-                <StaggeredHome
-                  storeSettings={storeSettings}
-                  banners={banners}
-                  setMainContentLoaded={setMainContentLoaded}
-                />
-              </Layout>
-            } />
-          </Routes>
-        </Router>
-      </CartProvider>
-    </ThemeProvider>
+              <Route path="/service/:id" element={
+                <Layout banners={banners}>
+                  <ServiceDetails />
+                </Layout>
+              } />
+              <Route path="/product/:id" element={
+                <Layout banners={banners}>
+                  <ProductDetails />
+                </Layout>
+              } />
+              <Route path="/category/:categoryId" element={
+                <Layout banners={banners}>
+                  <CategoryProducts />
+                </Layout>
+              } />
+              <Route path="/" element={
+                <Layout banners={banners}>
+                  <StaggeredHome
+                    storeSettings={storeSettings}
+                    banners={banners}
+                    setMainContentLoaded={setMainContentLoaded}
+                  />
+                </Layout>
+              } />
+            </Routes>
+          </Router>
+        </CartProvider>
+      </ThemeProvider>
+    </LanguageProvider>
   );
 }
 
@@ -324,7 +324,7 @@ function StaggeredHome({
   return (
     <>
       {/* Services component is part of the staggered load */}
-      <Services onLoaded={() => { /* Optionally handle service load */ }} />
+      <Services />
       {/* You can add more home page sections here to stagger them if needed */}
     </>
   );

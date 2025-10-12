@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import type { Service } from '../types/database';
 import { MessageCircle } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { toast } from 'react-toastify';
 
 function usePrevious<T>(value: T): T | undefined {
@@ -90,10 +91,12 @@ export default function ProductDetails() {
     setSuggested(data || []);
   };
 
+  const { t } = useLanguage();
+  
   const handleContact = () => {
     if (!service) return;
     const productUrl = window.location.href;
-    const message = `Inquiry about product: ${service.title}\nProduct link: ${productUrl}`;
+    const message = `${t('whatsapp.orderMessage')}\n${service.title}\n${t('products.price')}: ${service.price}\n${productUrl}`;
     window.open(`https://wa.me/201557777587?text=${encodeURIComponent(message)}`, '_blank');
   };
 
@@ -270,7 +273,7 @@ export default function ProductDetails() {
                     >
                       <div className="green-button-border"></div>
                       <MessageCircle className="h-5 w-5" />
-                      تواصل معنا للطلب
+                      {t('products.contactOrder')}
                     </button>
                     <button
                       onClick={(e) => {
@@ -304,7 +307,7 @@ export default function ProductDetails() {
       {/* Suggested Products */}
       {suggested.length > 0 && (
         <div className="container mx-auto px-4 max-w-4xl lg:max-w-5xl mb-8">
-          <h2 className="text-xl font-bold text-secondary mb-4 text-right">متوفر لدينا ايضا</h2>
+          <h2 className="text-xl font-bold text-secondary mb-4 text-right">{t('products.alsoAvailable')}</h2>
           <div
             className="flex gap-4 overflow-x-auto pb-2 hide-scrollbar"
             style={{ WebkitOverflowScrolling: 'touch' }}

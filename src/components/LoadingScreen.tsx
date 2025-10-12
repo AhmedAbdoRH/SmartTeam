@@ -52,14 +52,22 @@ export default function LoadingScreen({
 
   return (
     <div
-      className={`fixed inset-0 z-[9999] flex items-center justify-center bg-gradient-to-br from-[#232526] to-[#414345] transition-opacity ease-in-out ${
+      className={`fixed inset-0 z-[9999] flex items-center justify-center bg-[#12182b] transition-all ease-in-out ${
         fadeOut ? 'opacity-0 pointer-events-none' : 'opacity-100'
       }`}
-      style={{ transitionDuration: `${FADE_OUT_DURATION_MS}ms` }}
+      style={{ 
+        transitionDuration: `${FADE_OUT_DURATION_MS}ms`,
+      }}
     >
-      {imageLoaded && (
-        <Loader />
-      )}
+      <div className={`transform transition-transform duration-1000 ${
+        fadeOut ? 'scale-95 opacity-0' : 'scale-100 opacity-100'
+      }`}>
+        {imageLoaded && (
+          <div className="bg-white/5 backdrop-blur-lg rounded-xl p-8 border border-white/10">
+            <Loader className="w-16 h-16" />
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -3,12 +3,14 @@ import ServiceCard from './ServiceCard';
 import { supabase } from '../lib/supabase';
 import type { Service, Category } from '../types/database';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const lightGold = '#00BFFF';
 const brownDark = '#3d2c1d';
 const accentColor = '#d99323'; // New accent color for selected categories
 
 export default function Services() {
+  const { t } = useLanguage();
   const [services, setServices] = useState<Service[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);

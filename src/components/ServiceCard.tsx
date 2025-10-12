@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MessageCircle, Sparkles, ShoppingCart, Check } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface ProductCardProps {
   title: string;
@@ -22,13 +23,14 @@ export default function ProductCard({ title, description, imageUrl, price, saleP
    * with a pre-filled message including product details.
    * @param e - The mouse event.
    */
+  const { t } = useLanguage();
+  
   const handleContactClick = (e: React.MouseEvent) => {
     e.preventDefault(); // Prevent the default link behavior
     // Construct the URL for the specific product page
-    const productUrl = `${window.location.origin}/product/${id}`;;
+    const productUrl = `${window.location.origin}/product/${id}`;
     // Create the pre-filled message for WhatsApp
-    const message = `Inquiry about product: ${title}
-Product link: ${productUrl}`;
+    const message = t('whatsapp.orderMessage') + `\n${title}\n${t('products.price')}: ${price}\n${productUrl}`;
     // Open the WhatsApp chat link in a new tab
     window.open(`https://wa.me/201557777587?text=${encodeURIComponent(message)}`, '_blank');
   };
@@ -94,7 +96,7 @@ Product link: ${productUrl}`;
             >
               <div className="blue-button-border"></div>
               <MessageCircle className="h-5 w-5" />
-              <span className="hidden sm:inline">Order Now</span>
+              <span className="hidden sm:inline">{t('products.orderNow')}</span>
             </button>
             
             {/* Add to Cart Button */}

@@ -1,8 +1,12 @@
 import React from 'react';
 
-const Loader: React.FC = () => {
+interface LoaderProps {
+  className?: string;
+}
+
+const Loader: React.FC<LoaderProps> = ({ className = '' }) => {
   return (
-    <section className="loader">
+    <section className={`loader ${className}`}>
       <div>
         <div>
           <span className="one h6"></span>

@@ -4,12 +4,14 @@ import { supabase } from '../lib/supabase';
 import type { Service, Category } from '../types/database';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const lightGold = '#00BFFF';
 const brownDark = '#3d2c1d';
 const accentColor = '#d99323';
 
 export default function Services() {
+  const { t } = useLanguage();
   const [services, setServices] = useState<Service[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | 'featured' | 'best_sellers' | null>(null);
@@ -119,7 +121,7 @@ export default function Services() {
           transition={{ duration: 0.8 }}
         >
           <button className="button text-2xl sm:text-6xl lg:text-7xl font-bold">
-            OUR PRODUCTS
+            {t('products.title')}
             <div className="hoverEffect">
               <div></div>
             </div>

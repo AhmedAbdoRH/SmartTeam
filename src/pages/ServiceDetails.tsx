@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import type { Service } from '../types/database';
+import { useLanguage } from '../contexts/LanguageContext';
 import { MessageCircle } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 
@@ -14,6 +15,7 @@ function usePrevious<T>(value: T): T | undefined {
 }
 
 export default function ProductDetails() {
+  const { t } = useLanguage();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [service, setService] = useState<Service | null>(null);
@@ -312,7 +314,7 @@ export default function ProductDetails() {
         {/* المنتجات المقترحة */}
         {suggested.length > 0 && (
           <div className="container mx-auto px-4 max-w-4xl lg:max-w-5xl mb-8">
-            <h2 className="text-xl font-bold text-secondary mb-4">متوفر لدينا ايضا</h2>
+            <h2 className="text-xl font-bold text-secondary mb-4">{t('products.alsoAvailable')}</h2>
             <div
               className="flex gap-4 overflow-x-auto pb-2 hide-scrollbar"
               style={{ WebkitOverflowScrolling: 'touch' }}

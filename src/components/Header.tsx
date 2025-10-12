@@ -1,23 +1,24 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { ChevronDown, Search, X, ShoppingCart, Trash2, ChevronUp, Menu, X as Close } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Search, X, ShoppingCart, Trash2, Menu, X as Close } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import type { Category, StoreSettings, Service } from '../types/database';
 import { useCart } from '../contexts/CartContext';
 import { toast } from 'react-toastify';
 import { motion, AnimatePresence } from 'framer-motion';
+import LanguageToggle from './LanguageToggle';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface HeaderProps {
   storeSettings?: StoreSettings | null;
 }
 
 export default function Header({ storeSettings }: HeaderProps) {
-  const navigate = useNavigate();
+  const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Service[]>([]);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
-  const [isCartHovered, setIsCartHovered] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showCartPreview, setShowCartPreview] = useState(false);
   const cartPreviewTimer = useRef<NodeJS.Timeout | null>(null);
@@ -27,8 +28,6 @@ export default function Header({ storeSettings }: HeaderProps) {
   const searchRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const cartRef = useRef<HTMLLIElement>(null);
-  const cartButtonRef = useRef<HTMLButtonElement>(null);
-  const cartDropdownRef = useRef<HTMLDivElement>(null);
   const { 
     toggleCart, 
     itemCount, 
@@ -38,20 +37,9 @@ export default function Header({ storeSettings }: HeaderProps) {
     isCartOpen,
     cartTotal,
     sendOrderViaWhatsApp,
-    isAutoShowing
   } = useCart();
   
   // Toggle mobile search and focus the input when opened
-  const toggleMobileSearch = () => {
-    setIsMobileSearchOpen(!isMobileSearchOpen);
-    if (!isMobileSearchOpen && searchInputRef.current) {
-      // Small delay to ensure the input is visible before focusing
-      setTimeout(() => searchInputRef.current?.focus(), 100);
-    } else {
-      setSearchQuery('');
-      setSearchResults([]);
-    }
-  };
 
 
 
@@ -257,7 +245,9 @@ export default function Header({ storeSettings }: HeaderProps) {
                   }
                 }}
                 onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
-                placeholder="Search for a product..." className="text-glow w-full bg-white/10 text-white placeholder-white/50 rounded-lg py-2 pr-10 pl-4 focus:outline-none focus:ring-2 focus:ring-[#1b82ae] transition-all duration-300"
+                dir="auto"
+                placeholder={t('header.search.placeholder')} 
+                className="text-glow w-full bg-white/10 text-white placeholder-white/50 rounded-lg py-2 px-10 focus:outline-none focus:ring-2 focus:ring-[#1b82ae] transition-all duration-300 text-right"
               />
               <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/50" />
               {searchQuery && (
@@ -335,16 +325,19 @@ export default function Header({ storeSettings }: HeaderProps) {
               <Search className="h-6 w-6" />
             </button>
             
+            {/* Language Toggle */}
+            <LanguageToggle />
+            
             <nav>
               <ul className="flex gap-4 md:gap-6 items-center">
                 <li className="hidden md:block">
                   <Link to="/" className="text-white hover:text-[#FFD700] transition-colors duration-300 text-glow">
-                    Home
+                    {t('header.navigation.home')}
                   </Link>
                 </li>
                 <li>
                   <a href="#contact" className="text-white hover:text-[#FFD700] transition-colors duration-300 text-glow">
-                    Contact Us
+                    {t('header.navigation.contact')}
                   </a>
                 </li>
                 <li className="relative" ref={cartRef}>
@@ -378,10 +371,10 @@ export default function Header({ storeSettings }: HeaderProps) {
                       >
                         <div className="flex justify-between items-center mb-3 pb-2 border-b border-white/10">
                           <h3 className="text-white font-bold text-lg">
-                            Shopping Cart
+                            {t('header.cart.title')}
                           </h3>
                           <span className="text-sm text-white/60">
-                            {itemCount} {itemCount === 1 ? 'item' : 'items'}
+                            {itemCount} {itemCount === 1 ? t('header.cart.item') : t('header.cart.items')}
                           </span>
                         </div>
                         <div className="max-h-96 overflow-y-auto pr-2">
@@ -473,12 +466,11 @@ export default function Header({ storeSettings }: HeaderProps) {
                             onClick={(e) => {
                               e.stopPropagation();
                               sendOrderViaWhatsApp();
-                              setIsCartHovered(false);
                             }}
                             className="w-full bg-[#FFD700] hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded-md transition-colors duration-300 flex items-center justify-center gap-2"
                           >
                             <ShoppingCart className="h-5 w-5" />
-                            Complete Order
+                            {t('header.cart.completeOrder')}
                           </button>
                         </div>
                       </div>
@@ -498,7 +490,7 @@ export default function Header({ storeSettings }: HeaderProps) {
                     type="text"
                     value={searchQuery}
                     onChange={(e) => handleSearch(e.target.value)}
-                    placeholder="Search for a product..."
+                    placeholder={t('header.search.placeholder')}
                     className="w-full bg-white/10 text-white placeholder-white/50 rounded-lg py-3 px-5 pr-12 focus:outline-none focus:ring-2 focus:ring-[#FFD700]"
                   />
                   <button
@@ -570,16 +562,16 @@ export default function Header({ storeSettings }: HeaderProps) {
                       className="block px-5 py-4 text-lg text-white hover:bg-white/10 rounded-lg transition-colors font-medium"
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      Home Page
+                      {t('header.mobileMenu.homePage')}
                     </Link>
                   </li>
                   
                   <li className="mt-6 bg-white/5 rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.1)]">
                     <div className="px-5 py-1.5 text-white/60 text-sm font-normal border-b border-white/10">
-                      Categories
+                      {t('header.mobileMenu.categories')}
                     </div>
                     {loadingCategories ? (
-                      <div className="px-5 py-4 text-white/50 text-base text-center">Loading...</div>
+                      <div className="px-5 py-4 text-white/50 text-base text-center">{t('header.mobileMenu.loading')}</div>
                     ) : categories.length > 0 ? (
                       <ul className="mt-1">
                         {categories.map((category) => (
@@ -595,7 +587,7 @@ export default function Header({ storeSettings }: HeaderProps) {
                         ))}
                       </ul>
                     ) : (
-                      <div className="px-5 py-4 text-white/50 text-base text-center">No categories available</div>
+                      <div className="px-5 py-4 text-white/50 text-base text-center">{t('header.mobileMenu.noCategories')}</div>
                     )}
                   </li>
                 </ul>
@@ -608,7 +600,7 @@ export default function Header({ storeSettings }: HeaderProps) {
                   className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
                 >
                   <X className="h-5 w-5" />
-                  <span>Close Menu</span>
+                  <span>{t('header.mobileMenu.closeMenu')}</span>
                 </button>
               </div>
             </motion.div>
