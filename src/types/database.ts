@@ -12,13 +12,16 @@ export interface ProductImage {
 }
 
 export interface Service {
-  id: number;
+  id: string;
   category_id: string;
+  subcategory_id?: string | null;
   title: string;
   description: string | null;
+  description_en: string | null;
   image_url: string | null;
   images?: ProductImage[]; // Array of product images
   images_urls?: string[]; // روابط صور متعددة
+  gallery?: string[]; // صور إضافية
   price: string | null;
   sale_price: string | null; // السعر المخفض
   is_featured?: boolean; // أحدث العروض
@@ -52,6 +55,8 @@ export interface StoreSettings {
   facebook_url: string | null;
   instagram_url: string | null;
   twitter_url: string | null;
+  snapchat_url: string | null;
+  tiktok_url: string | null;
   theme_settings?: {
     primaryColor?: string;
     secondaryColor?: string;
@@ -59,6 +64,7 @@ export interface StoreSettings {
     backgroundGradient?: string;
     fontFamily?: string;
   } | null;
+  show_testimonials: boolean;
   updated_at: string;
 }
 

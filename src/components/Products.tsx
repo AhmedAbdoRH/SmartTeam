@@ -10,7 +10,7 @@ const brownDark = '#3d2c1d';
 const accentColor = '#d99323'; // New accent color for selected categories
 
 export default function Services() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [services, setServices] = useState<Service[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -184,9 +184,11 @@ export default function Services() {
                   id={service.id}
                   title={service.title}
                   description={service.description || ''}
+                  description_en={service.description_en || ''}
                   imageUrl={service.image_url || ''}
                   price={service.price || ''}
                   salePrice={service.sale_price || null}
+                  language={language}
                 />
               </motion.div>
             ))}

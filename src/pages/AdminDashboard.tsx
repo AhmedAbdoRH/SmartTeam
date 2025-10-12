@@ -61,6 +61,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
   const [newService, setNewService] = useState({
     title: '',
     description: '',
+    description_en: '',
     image_url: '',
     price: '',
     sale_price: '',
@@ -712,10 +713,15 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
     setIsLoading(true);
     try {
         const serviceToAdd = {
-            ...newService,
+            title: newService.title,
+            description: newService.description || null,
+            description_en: newService.description_en || null,
+            image_url: newService.image_url,
+            price: newService.price,
+            sale_price: newService.sale_price || null,
             category_id: selectedCategory,
             subcategory_id: selectedSubcategory || null,
-            sale_price: newService.sale_price || null,
+            gallery: Array.isArray(newService.gallery) ? newService.gallery : [],
             is_featured: newService.is_featured || false,
             is_best_seller: newService.is_best_seller || false
         };
@@ -727,6 +733,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
         setNewService({
             title: '',
             description: '',
+            description_en: '',
             image_url: '',
             price: '',
             sale_price: '',
@@ -752,6 +759,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
     setNewService({
       title: service.title,
       description: service.description || '',
+      description_en: service.description_en || '',
       image_url: service.image_url || '',
       price: service.price?.toString() || '',
       sale_price: service.sale_price?.toString() || '',
@@ -778,7 +786,8 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
     try {
       const serviceToUpdate = {
         title: newService.title,
-        description: newService.description,
+        description: newService.description || null,
+        description_en: newService.description_en || null,
         image_url: newService.image_url,
         price: newService.price,
         sale_price: newService.sale_price || null,
@@ -797,6 +806,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
       setNewService({ 
         title: '', 
         description: '', 
+        description_en: '',
         image_url: '', 
         price: '', 
         sale_price: '', 
@@ -822,6 +832,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
     setNewService({ 
       title: '', 
       description: '', 
+      description_en: '',
       image_url: '', 
       price: '', 
       sale_price: '', 
@@ -1310,7 +1321,7 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                             {testimonials.map((t: Testimonial) => (
                                 <div key={t.id} className="relative group border border-gray-700 rounded-lg overflow-hidden">
-                                    <img src={t.image_url} alt="testimonial" className="w-full h-40 object-cover bg-white" />
+                                    <img src={t.image_url || undefined} alt="testimonial" className="w-full h-40 object-cover bg-white" />
                                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                                         <button
                                             className="bg-red-600 text-white p-2 rounded-full hover:bg-red-700 transition-colors"
@@ -1524,7 +1535,9 @@ export default function AdminDashboard({ onSettingsUpdate }: AdminDashboardProps
                     <>
                       <form onSubmit={editingService ? handleUpdateService : handleAddService} className="mb-8 space-y-4" id="service-form">
                         <input type="text" placeholder="عنوان المنتج" value={newService.title} onChange={(e) => setNewService({ ...newService, title: e.target.value })} className="w-full p-3 rounded text-white bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" required disabled={isLoading}/>
-                        <textarea placeholder="وصف المنتج (اختياري)" value={newService.description} onChange={(e) => setNewService({ ...newService, description: e.target.value })} rows={3} className="w-full p-3 rounded text-white bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" disabled={isLoading}/>
+                        <textarea placeholder="وصف المنتج بالعربية (اختياري)" value={newService.description} onChange={(e) => setNewService({ ...newService, description: e.target.value })} rows={3} className="w-full p-3 rounded text-white bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" disabled={isLoading}/>
+                        <textarea placeholder="وصف المنتج بالإنجليزية (اختياري)" value={newService.description_en} onChange={(e) => setNewService({ ...newService, description_en: e.target.value })} rows={3} className="w-full p-3 rounded text-white bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" disabled={isLoading}/>
+                        
                         
                         <div>
                             <label htmlFor="image-upload" className={`w-full flex flex-col items-center justify-center p-4 rounded-md border-2 border-dashed border-gray-600 cursor-pointer hover:bg-gray-700/50 hover:border-blue-500 transition-colors ${uploadingImage || isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}>

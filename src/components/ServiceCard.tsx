@@ -1,37 +1,31 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MessageCircle, Sparkles, ShoppingCart, Check } from 'lucide-react';
+import { MessageCircle, ShoppingCart, Check } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useLanguage } from '../contexts/LanguageContext';
 
-interface ProductCardProps {
+interface ServiceCardProps {
   title: string;
   description: string;
+  description_en?: string | null;
   imageUrl: string;
   price: string;
   salePrice?: string | null;
   id: string | number;
 }
 
-// Define the light gold color using the hex code from the Hero component
-const lightGold = '#00BFFF'; // Electric blue color
+export default function ServiceCard({ title, description, description_en, imageUrl, price, salePrice, id }: ServiceCardProps) {
+  const { t, language } = useLanguage();
+  const [currentDescription, setCurrentDescription] = useState(description);
 
-export default function ProductCard({ title, description, imageUrl, price, salePrice, id }: ProductCardProps) {
-  /**
-   * Handles the click event for the "Contact Now" button.
-   * Prevents the default link behavior and opens a WhatsApp chat
-   * with a pre-filled message including product details.
-   * @param e - The mouse event.
-   */
-  const { t } = useLanguage();
-  
+  useEffect(() => {
+    setCurrentDescription(language === 'en' && description_en ? description_en : description);
+  }, [language, description, description_en]);
+
   const handleContactClick = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent the default link behavior
-    // Construct the URL for the specific product page
+    e.preventDefault();
     const productUrl = `${window.location.origin}/product/${id}`;
-    // Create the pre-filled message for WhatsApp
     const message = t('whatsapp.orderMessage') + `\n${title}\n${t('products.price')}: ${price}\n${productUrl}`;
-    // Open the WhatsApp chat link in a new tab
     window.open(`https://wa.me/201557777587?text=${encodeURIComponent(message)}`, '_blank');
   };
 
@@ -45,18 +39,15 @@ export default function ProductCard({ title, description, imageUrl, price, saleP
     
     setIsAdding(true);
     
-    // Add to cart
     addToCart({
       id,
       title,
-      price: salePrice || price, // Use sale price if available
+      price: salePrice || price,
       imageUrl,
     });
     
-    // Show added feedback
     setIsAdded(true);
     
-    // Reset button state after animation
     setTimeout(() => {
       setIsAdding(false);
       setTimeout(() => setIsAdded(false), 2000);
@@ -77,61 +68,42 @@ export default function ProductCard({ title, description, imageUrl, price, saleP
         <div className="p-6">
           <h3 className="text-xl font-bold mb-2 text-secondary flex items-center gap-2">
             {title}
-
           </h3>
           <p className="text-secondary/70 mb-4">
-            {description.split(/\r?\n/)[0]}
+            {currentDescription.split(/\r?\n/)[0]}
           </p>
         </div>
       </Link>
       
-      <div className="px-6 pb-6 pt-0">
-        <div className="flex justify-between items-center">
-          {/* Left Side - Chat Button and Cart Button */}
-          <div className="flex gap-2 items-center">
-            {/* Contact Button */}
-            <button
-              onClick={handleContactClick}
-              className="blue-button blue-order-button flex items-center gap-2"
-            >
-              <div className="blue-button-border"></div>
-              <MessageCircle className="h-5 w-5" />
-              <span className="hidden sm:inline">{t('products.orderNow')}</span>
-            </button>
-            
-            {/* Add to Cart Button */}
-            <button
-              onClick={handleAddToCart}
-              disabled={isAdding || isAdded}
-              className={`p-2 flex items-center justify-center rounded-md transition-all duration-300 ${
-                isAdded 
-                  ? 'bg-green-500 text-white' 
-                  : `bg-[${lightGold}]/90 hover:bg-[${lightGold}] text-secondary`
-              } ${isAdding ? 'opacity-75' : ''}`}
-              title={isAdded ? 'Added' : 'Add to Cart'}
-            >
-              {isAdding ? (
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-md animate-spin"></div>
-              ) : isAdded ? (
-                <Check className="h-5 w-5" />
-              ) : (
-                <ShoppingCart className="h-5 w-5" />
-              )}
-            </button>
-          </div>
-          
-          {/* Price - Far Right */}
-          <div className="flex flex-col items-end">
-            {salePrice ? (
-              <>
-                <span className={`font-bold text-lg text-[${lightGold}]`}>{salePrice} EGP</span>
-                <span className="text-sm text-gray-400 line-through">{price} EGP</span>
-              </>
-            ) : (
-              <span className={`font-bold text-lg text-[${lightGold}]`}>{price} EGP</span>
-            )}
-          </div>
-        </div>
+      <div className="absolute bottom-4 right-4 flex items-center gap-2">
+        {/* Contact Now Button */}
+        <button
+          onClick={handleContactClick}
+          className="p-2 rounded-full bg-primary text-white hover:bg-primary/80 transition-colors"
+          title={t('products.contactNow')}
+        >
+          <MessageCircle size={20} />
+        </button>
+
+        {/* Add to Cart Button */}
+        <button
+          onClick={handleAddToCart}
+          disabled={isAdding || isAdded}
+          className={`p-2 rounded-full transition-all duration-300 transform 
+            ${isAdded 
+              ? 'bg-green-500 text-white scale-110' 
+              : isAdding 
+                ? 'bg-primary/50 text-white scale-95'
+                : 'bg-primary text-white hover:bg-primary/80'
+            }`}
+          title={t('products.addToCart')}
+        >
+          {isAdded ? (
+            <Check size={20} />
+          ) : (
+            <ShoppingCart size={20} className={isAdding ? 'animate-bounce' : ''} />
+          )}
+        </button>
       </div>
     </div>
   );

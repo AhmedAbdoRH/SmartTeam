@@ -7,6 +7,7 @@ export type Language = 'en' | 'ar';
 // Language context interface
 interface LanguageContextType {
   language: Language;
+  currentLanguage: string;
   setLanguage: (lang: Language) => void;
   isRTL: boolean;
   t: (key: string, params?: Record<string, string | number>) => string;
@@ -54,6 +55,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
 
   const value: LanguageContextType = {
     language,
+    currentLanguage: language,
     setLanguage,
     isRTL,
     t,
