@@ -138,6 +138,7 @@ function App() {
           logo_url: null,
           meta_title: 'Smart Team | حلول المنازل الذكية',
           meta_description: 'نقدم أحدث تقنيات أتمتة المنازل، أنظمة الأمان، والتحكم الذكي.',
+          show_testimonials: true,
           theme_settings: {
             primaryColor: '#c7a17a',
             secondaryColor: '#fff',
@@ -179,6 +180,7 @@ function App() {
           logo_url: null,
           meta_title: 'Smart Team | حلول المنازل الذكية',
           meta_description: 'نقدم أحدث تقنيات أتمتة المنازل، أنظمة الأمان، والتحكم الذكي.',
+          show_testimonials: true,
           theme_settings: {
             primaryColor: '#c7a17a',
             secondaryColor: '#fff',
@@ -198,6 +200,7 @@ function App() {
         logo_url: null,
         meta_title: 'Smart Team | حلول المنازل الذكية',
         meta_description: 'نقدم أحدث تقنيات أتمتة المنازل، أنظمة الأمان، والتحكم الذكي.',
+        show_testimonials: true,
         theme_settings: {
           primaryColor: '#c7a17a',
           secondaryColor: '#fff',
@@ -326,6 +329,9 @@ function StaggeredHome({
       {/* Services component is part of the staggered load */}
       <Services />
       {/* You can add more home page sections here to stagger them if needed */}
+      {storeSettings?.show_testimonials && (
+        <Testimonials />
+      )}
     </>
   );
 }
