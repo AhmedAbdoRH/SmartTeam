@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import type { Testimonial } from '../types/database';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 // Constants for styling and animation
 const VISIBLE_CARDS = 3; // How many cards to prepare for the stack effect (current + next ones)
@@ -17,6 +18,7 @@ export default function Testimonials() {
   // No isAnimating state needed for this specific slide approach if transitions are handled by CSS
   // and we prevent rapid clicks on buttons if desired. For simplicity, we'll keep it if needed for button debouncing.
   const [isAnimating, setIsAnimating] = useState(false);
+  const { currentLanguage } = useLanguage();
 
 
   useEffect(() => {
@@ -110,7 +112,7 @@ export default function Testimonials() {
       />
       <div className="absolute inset-0 bg-black/20 -z-10" />
       <div className="max-w-4xl mx-auto">
-        <h2 className="text-3xl font-bold text-center text-white mb-10">Our Customers' Opinions</h2>
+        <h2 className="text-3xl font-bold text-center text-white mb-10">{currentLanguage === 'ar' ? 'آراء عملائنا' : "Our Customers' Opinions"}</h2>
 
         <div className="relative h-[400px] md:h-[500px] w-full"> {/* Fixed height container for cards */}
           {/* Testimonial Cards */}
