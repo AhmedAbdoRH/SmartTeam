@@ -91,7 +91,7 @@ export default function ProductDetails() {
     setSuggested(data || []);
   };
 
-  const { t } = useLanguage();
+  const { t, currentLanguage } = useLanguage();
   
   const handleContact = () => {
     if (!service) return;
@@ -253,8 +253,10 @@ export default function ProductDetails() {
               <div className="md:w-1/2 p-8">
                 <h1 className="text-3xl font-bold mb-4 text-secondary text-right">{service.title}</h1>
                 <p className="text-white text-opacity-88 mb-6 text-lg leading-relaxed text-right" style={{ whiteSpace: 'pre-wrap' }}>
-  {service.description}
-</p>
+                  {(currentLanguage === 'en' && service.description_en && service.description_en.trim())
+                    ? service.description_en
+                    : service.description}
+                </p>
                 <div className="border-t border-gray-700 pt-6 mb-6">
                   <div className="text-2xl font-bold text-accent mb-6 text-right">
                     {service.sale_price ? (

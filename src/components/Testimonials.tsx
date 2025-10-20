@@ -102,7 +102,13 @@ export default function Testimonials() {
   }
 
   return (
-    <section className="bg-black/70 py-12 px-4 md:px-0 border-t border-gray-700 mt-16 overflow-x-hidden"> {/* overflow-x-hidden is important */}
+    <section className="relative py-12 px-4 md:px-0 border-t border-gray-700 mt-16 overflow-x-hidden"> {/* overflow-x-hidden is important */}
+      {/* Match site background then darken slightly */}
+      <div
+        className="absolute inset-0 -z-10"
+        style={{ background: 'var(--background-gradient, var(--background-color, #232526))' }}
+      />
+      <div className="absolute inset-0 bg-black/20 -z-10" />
       <div className="max-w-4xl mx-auto">
         <h2 className="text-3xl font-bold text-center text-white mb-10">Our Customers' Opinions</h2>
 
